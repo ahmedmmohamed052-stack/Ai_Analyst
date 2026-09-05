@@ -1,0 +1,39 @@
+                                                User Question
+                                                       ↓
+                                            1. BusinessQuestionChain
+                                                       ↓
+                                            2. SQLGenerationChain
+                                                       ↓
+                                            3. SQLValidation
+                                                       ↓
+                                            4. DatabaseExecution
+                                                       ↓
+                                            5. DataQualityCalculation
+                                                       ↓
+                                            6. DataQualityInterpretation
+                                                       ↓
+                                            7. StatisticalCalculation
+                                                       ↓
+                                            8. StatisticalInterpretation
+                                                       ↓
+                                            9. CorrelationCalculation
+                                                       ↓
+                                            10. CorrelationInterpretation
+                                                       ↓
+                                            11. TrendCalculation
+                                                       ↓
+                                            12. TrendInterpretation
+                                                       ↓
+                                            13. OutlierCalculation
+                                                       ↓
+                                            14. OutlierInterpretation
+                                                       ↓
+                                            15. EDAChain
+                                                       ↓
+                                            16. RootCauseChain
+                                                       ↓
+                                            17. InsightChain
+                                                       ↓
+                                            18. RecommendationChain
+                                                       ↓
+                                                Final Report

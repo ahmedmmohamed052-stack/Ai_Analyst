@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>analysis.py — Calculation Reference</title>
+<style>
+  :root{
+    --bg:#0d1117;
+    --bg-panel:#11161d;
+    --bg-code:#0a0e13;
+    --border:#1f2630;
+    --text:#d6dde6;
+    --text-dim:#7d8b9c;
+    --accent:#5fd0c0;
+    --accent-soft:#5fd0c022;
+    --num:#e8b86d;
+    --string:#9fd989;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    line-height:1.6;
+  }
+  .wrap{
+    display:grid;
+    grid-template-columns:240px 1fr;
+    max-width:1180px;
+    margin:0 auto;
+  }
+  /* Sidebar */
+  nav.toc{
+    position:sticky;
+    top:0;
+    align-self:start;
+    height:100vh;
+    overflow-y:auto;
+    padding:32px 20px 32px 28px;
+    border-right:1px solid var(--border);
+  }
+  nav.toc .brand{
+    font-family:'Cascadia Code','Fira Code',Consolas,monospace;
+    font-size:13px;
+    color:var(--accent);
+    letter-spacing:0.5px;
+    margin-bottom:6px;
+  }
+  nav.toc .brand-sub{
+    font-size:11px;
+    color:var(--text-dim);
+    margin-bottom:28px;
+  }
+  nav.toc a{
+    display:block;
+    font-size:13.5px;
+    color:var(--text-dim);
+    text-decoration:none;
+    padding:7px 10px;
+    border-radius:6px;
+    margin-bottom:2px;
+    transition:background .15s, color .15s;
+  }
+  nav.toc a:hover{ background:var(--accent-soft); color:var(--accent); }
+  nav.toc .toc-num{
+    font-family:'Cascadia Code','Fira Code',Consolas,monospace;
+    color:var(--num);
+    margin-right:8px;
+  }
+
+  main{ padding:48px 56px 80px; min-width:0; }
+
+  header.page-head{
+    margin-bottom:40px;
+    padding-bottom:28px;
+    border-bottom:1px solid var(--border);
+  }
+  header.page-head h1{
+    font-size:28px;
+    margin:0 0 8px;
+    color:#fff;
+    letter-spacing:-0.3px;
+  }
+  header.page-head p.lead{
+    color:var(--text-dim);
+    font-size:15px;
+    margin:0 0 18px;
+    max-width:640px;
+  }
+  .source-note{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family:'Cascadia Code','Fira Code',Consolas,monospace;
+    font-size:12.5px;
+    color:var(--accent);
+    background:var(--accent-soft);
+    border:1px solid #5fd0c044;
+    padding:7px 14px;
+    border-radius:7px;
+  }
+  .source-note .dot{
+    width:7px; height:7px; border-radius:50%; background:var(--accent);
+    box-shadow:0 0 6px var(--accent);
+  }
+
+  section.module{
+    margin-bottom:56px;
+    padding-top:8px;
+  }
+  section.module > .mod-head{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    margin-bottom:4px;
+  }
+  section.module .mod-index{
+    font-family:'Cascadia Code','Fira Code',Consolas,monospace;
+    font-size:14px;
+    color:var(--num);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:3px 9px;
+  }
+  section.module h2{
+    font-size:20px;
+    margin:0;
+    color:#fff;
+  }
+  section.module .goal{
+    color:var(--text-dim);
+    font-size:14.5px;
+    margin:10px 0 24px;
+    padding-left:2px;
+  }
+  section.module .goal strong{ color:var(--text); }
+
+  .calc{
+    margin:0 0 22px;
+    padding:18px 22px;
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+  }
+  .calc h3{
+    font-size:14.5px;
+    margin:0 0 12px;
+    color:var(--accent);
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .calc h3::before{
+    content:"›";
+    color:var(--text-dim);
+  }
+  .calc p.note{
+    font-size:13.5px;
+    color:var(--text-dim);
+    margin:10px 0 0;
+  }
+
+  pre{
+    margin:0;
+    background:var(--bg-code);
+    border:1px solid var(--border);
+    border-radius:7px;
+    padding:13px 16px;
+    overflow-x:auto;
+    font-family:'Cascadia Code','Fira Code',Consolas,monospace;
+    font-size:13px;
+    line-height:1.55;
+    color:#c7d3e0;
+  }
+  pre + pre{ margin-top:8px; }
+  .pair{ display:grid; grid-template-columns:1fr; gap:8px; }
+  .label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.6px;
+    color:var(--text-dim);
+    margin:0 0 6px;
+  }
+  .label.out{ margin-top:14px; }
+
+  .kw{ color:#d291e4; }
+  .fn{ color:var(--accent); }
+  .strn{ color:var(--string); }
+  .cm{ color:#5c6773; font-style:italic;}
+  .out-line{ color:var(--num); }
+
+  .grid2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
+  @media (max-width:760px){ .grid2{ grid-template-columns:1fr; } }
+
+  .mvp-table{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+    margin-top:18px;
+  }
+  @media (max-width:760px){ .mvp-table{ grid-template-columns:1fr; } }
+  .mvp-col{
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:20px 22px;
+  }
+  .mvp-col h3{
+    margin:0 0 14px;
+    font-size:14px;
+    letter-spacing:0.4px;
+    text-transform:uppercase;
+  }
+  .mvp-col.mvp-min h3{ color:var(--num); }
+  .mvp-col.mvp-prod h3{ color:var(--accent); }
+  .mvp-block{ margin-bottom:16px; }
+  .mvp-block:last-child{ margin-bottom:0; }
+  .mvp-block .mb-title{
+    font-size:13px;
+    color:var(--text);
+    font-weight:600;
+    margin-bottom:6px;
+  }
+  .mvp-block ul{
+    margin:0;
+    padding-left:18px;
+    color:var(--text-dim);
+    font-size:13.5px;
+  }
+  .mvp-block li{ margin-bottom:3px; }
+
+  footer{
+    margin-top:60px;
+    padding-top:24px;
+    border-top:1px solid var(--border);
+    color:var(--text-dim);
+    font-size:12.5px;
+  }
+  footer code{
+    color:var(--accent);
+    font-family:'Cascadia Code','Fira Code',Consolas,monospace;
+  }
+
+  @media (max-width:900px){
+    .wrap{ grid-template-columns:1fr; }
+    nav.toc{ position:static; height:auto; border-right:none; border-bottom:1px solid var(--border); }
+    main{ padding:32px 24px 60px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="toc">
+    <div class="brand">analysis.py</div>
+    <div class="brand-sub">calculation reference</div>
+    <a href="#sec1"><span class="toc-num">1</span>Data Quality</a>
+    <a href="#sec2"><span class="toc-num">2</span>Statistical</a>
+    <a href="#sec3"><span class="toc-num">3</span>Correlation</a>
+    <a href="#sec4"><span class="toc-num">4</span>Trend</a>
+    <a href="#sec5"><span class="toc-num">5</span>Outlier</a>
+    <a href="#sec6"><span class="toc-num">—</span>MVP vs Production</a>
+  </nav>
+
+  <main>
+    <header class="page-head">
+      <h1>Calculation Reference</h1>
+      <p class="lead">Five calculation modules used for dataset analysis — data quality, statistics, correlation, trend, and outlier detection — plus the MVP vs. Production scope split.</p>
+      <span class="source-note"><span class="dot"></span>All functions referenced below are implemented in <strong>analysis.py</strong> — this document is read-only reference, nothing has been edited or changed.</span>
+    </header>
+
+    <!-- 1. DATA QUALITY -->
+    <section class="module" id="sec1">
+      <div class="mod-head">
+        <span class="mod-index">01</span>
+        <h2>DataQualityCalculation</h2>
+      </div>
+      <p class="goal"><strong>Goal:</strong> Determine whether the data is trustworthy before analysis.</p>
+
+      <div class="calc">
+        <h3>Row Count</h3>
+        <pre><span class="fn">len</span>(df)</pre>
+        <p class="label out">Output</p>
+        <pre><span class="out-line">Total rows = 1,250,000</span></pre>
+      </div>
+
+      <div class="calc">
+        <h3>Column Count</h3>
+        <pre><span class="fn">len</span>(df.columns)</pre>
+      </div>
+
+      <div class="calc">
+        <h3>Missing Values</h3>
+        <pre>df.isnull().<span class="fn">sum</span>()</pre>
+        <p class="note">Also calculate:</p>
+        <pre>(
+    df.isnull().sum() /
+    <span class="fn">len</span>(df)
+) * 100</pre>
+        <p class="label out">Output</p>
+        <pre><span class="out-line">revenue = 2.4%
+customer_id = 0%</span></pre>
+      </div>
+
+      <div class="calc">
+        <h3>Duplicate Rows</h3>
+        <pre>df.duplicated().<span class="fn">sum</span>()</pre>
+      </div>
+
+      <div class="calc">
+        <h3>Data Types</h3>
+        <pre>df.dtypes</pre>
+        <p class="label out">Output</p>
+        <pre><span class="out-line">revenue float64
+customer_id int64</span></pre>
+      </div>
+
+      <div class="calc">
+        <h3>Unique Values</h3>
+        <pre>df.<span class="fn">nunique</span>()</pre>
+        <p class="note">Useful for:</p>
+        <pre><span class="cm">customers
+products
+regions</span></pre>
+      </div>
+
+      <div class="calc">
+        <h3>Invalid Values</h3>
+        <p class="note">Examples:</p>
+        <pre>(df[<span class="strn">"revenue"</span>] &lt; 0).<span class="fn">sum</span>()</pre>
+        <pre>(df[<span class="strn">"quantity"</span>] &lt;= 0).<span class="fn">sum</span>()</pre>
+      </div>
+
+      <div class="calc">
+        <h3>Date Range</h3>
+        <pre>df[<span class="strn">"date"</span>].<span class="fn">min</span>()
+df[<span class="strn">"date"</span>].<span class="fn">max</span>()</pre>
+        <p class="label out">Output</p>
+        <pre><span class="out-line">Jan 2022 → Jun 2026</span></pre>
+      </div>
+
+      <div class="calc">
+        <h3>Data Quality Output</h3>
+        <pre><span class="kw">quality_report</span> = {
+    <span class="strn">"rows"</span>: ...,
+    <span class="strn">"columns"</span>: ...,
+    <span class="strn">"nulls"</span>: ...,
+    <span class="strn">"duplicates"</span>: ...,
+    <span class="strn">"dtypes"</span>: ...,
+    <span class="strn">"unique_values"</span>: ...,
+    <span class="strn">"date_range"</span>: ...
+}</pre>
+      </div>
+    </section>
+
+    <!-- 2. STATISTICAL -->
+    <section class="module" id="sec2">
+      <div class="mod-head">
+        <span class="mod-index">02</span>
+        <h2>StatisticalCalculation</h2>
+      </div>
+      <p class="goal"><strong>Goal:</strong> Calculate descriptive statistics.</p>
+
+      <div class="grid2">
+        <div class="calc"><h3>Sum</h3><pre>df[col].<span class="fn">sum</span>()</pre></div>
+        <div class="calc"><h3>Mean</h3><pre>df[col].<span class="fn">mean</span>()</pre></div>
+        <div class="calc"><h3>Median</h3><pre>df[col].<span class="fn">median</span>()</pre></div>
+        <div class="calc"><h3>Min</h3><pre>df[col].<span class="fn">min</span>()</pre></div>
+        <div class="calc"><h3>Max</h3><pre>df[col].<span class="fn">max</span>()</pre></div>
+        <div class="calc"><h3>Standard Deviation</h3><pre>df[col].<span class="fn">std</span>()</pre></div>
+        <div class="calc"><h3>Variance</h3><pre>df[col].<span class="fn">var</span>()</pre></div>
+      </div>
+
+      <div class="calc">
+        <h3>Quantiles</h3>
+        <pre>df[col].<span class="fn">quantile</span>(.25)
+df[col].<span class="fn">quantile</span>(.50)
+df[col].<span class="fn">quantile</span>(.75)</pre>
+      </div>
+
+      <div class="calc">
+        <h3>Skewness</h3>
+        <pre>df[col].<span class="fn">skew</span>()</pre>
+        <p class="note">Shows:</p>
+        <pre><span class="cm">left skew
+right skew</span></pre>
+      </div>
+
+      <div class="calc">
+        <h3>Kurtosis</h3>
+        <pre>df[col].<span class="fn">kurtosis</span>()</pre>
+        <p class="note">Shows:</p>
+        <pre><span class="cm">heavy tails
+extreme values</span></pre>
+      </div>
+
+      <div class="calc">
+        <h3>Statistical Output</h3>
+        <pre><span class="kw">statistics</span> = {
+    <span class="strn">"revenue"</span>: {
+        ...
+    }
+}</pre>
+      </div>
+    </section>
+
+    <!-- 3. CORRELATION -->
+    <section class="module" id="sec3">
+      <div class="mod-head">
+        <span class="mod-index">03</span>
+        <h2>CorrelationCalculation</h2>
+      </div>
+      <p class="goal"><strong>Goal:</strong> Find relationships.</p>
+
+      <div class="calc">
+        <h3>Pearson Correlation</h3>
+        <pre>df.<span class="fn">corr</span>(numeric_only=<span class="kw">True</span>)</pre>
+        <p class="label out">Output</p>
+        <pre><span class="out-line">marketing ↔ revenue = 0.91</span></pre>
+      </div>
+
+      <div class="grid2">
+        <div class="calc">
+          <h3>Strong Positive Relationships</h3>
+          <p class="note">Find:</p>
+          <pre>corr &gt; 0.7</pre>
+        </div>
+        <div class="calc">
+          <h3>Strong Negative Relationships</h3>
+          <p class="note">Find:</p>
+          <pre>corr &lt; -0.7</pre>
+        </div>
+      </div>
+
+      <div class="calc">
+        <h3>Feature Ranking</h3>
+        <p class="note">Example:</p>
+        <pre><span class="cm">Top drivers of revenue</span></pre>
+        <p class="note">Sort correlations.</p>
+      </div>
+
+      <div class="calc">
+        <h3>Correlation Matrix</h3>
+        <p class="label out">Output</p>
+        <pre>correlation_matrix</pre>
+        <p class="note">Used by:</p>
+        <pre><span class="cm">heatmap
+dashboard</span></pre>
+      </div>
+
+      <div class="calc">
+        <h3>Correlation Output</h3>
+        <pre><span class="kw">correlations</span> = {
+    <span class="strn">"matrix"</span>: ...,
+    <span class="strn">"strong_positive"</span>: ...,
+    <span class="strn">"strong_negative"</span>: ...
+}</pre>
+      </div>
+    </section>
+
+    <!-- 4. TREND -->
+    <section class="module" id="sec4">
+      <div class="mod-head">
+        <span class="mod-index">04</span>
+        <h2>TrendCalculation</h2>
+      </div>
+      <p class="goal"><strong>Goal:</strong> Analyze behavior over time. Requires a date column.</p>
+
+      <div class="calc">
+        <h3>Daily Revenue</h3>
+        <pre>df.<span class="fn">groupby</span>(<span class="strn">"date"</span>)[<span class="strn">"revenue"</span>].<span class="fn">sum</span>()</pre>
+      </div>
+
+      <div class="grid2">
+        <div class="calc"><h3>Weekly Revenue</h3><pre><span class="fn">resample</span>(<span class="strn">"W"</span>)</pre></div>
+        <div class="calc"><h3>Monthly Revenue</h3><pre><span class="fn">resample</span>(<span class="strn">"M"</span>)</pre></div>
+      </div>
+
+      <div class="calc">
+        <h3>Growth Rate</h3>
+        <pre><span class="fn">pct_change</span>()</pre>
+        <p class="label out">Output</p>
+        <pre><span class="out-line">Jan → Feb +10%</span></pre>
+      </div>
+
+      <div class="calc">
+        <h3>Moving Average</h3>
+        <pre><span class="fn">rolling</span>(3).<span class="fn">mean</span>()</pre>
+        <p class="note">Removes noise.</p>
+      </div>
+
+      <div class="grid2">
+        <div class="calc"><h3>Peak Period</h3><pre><span class="fn">idxmax</span>()</pre></div>
+        <div class="calc"><h3>Lowest Period</h3><pre><span class="fn">idxmin</span>()</pre></div>
+      </div>
+
+      <div class="calc">
+        <h3>Trend Direction</h3>
+        <p class="note">Calculate:</p>
+        <pre><span class="cm">Increasing
+Decreasing
+Flat</span></pre>
+      </div>
+
+      <div class="calc">
+        <h3>Trend Output</h3>
+        <pre><span class="kw">trends</span> = {
+    <span class="strn">"monthly_revenue"</span>: ...,
+    <span class="strn">"growth_rate"</span>: ...,
+    <span class="strn">"moving_average"</span>: ...,
+    <span class="strn">"peak_month"</span>: ...,
+    <span class="strn">"worst_month"</span>: ...
+}</pre>
+      </div>
+    </section>
+
+    <!-- 5. OUTLIER -->
+    <section class="module" id="sec5">
+      <div class="mod-head">
+        <span class="mod-index">05</span>
+        <h2>OutlierCalculation</h2>
+      </div>
+      <p class="goal"><strong>Goal:</strong> Find anomalies.</p>
+
+      <div class="calc">
+        <h3>IQR Method</h3>
+        <p class="note">Most common.</p>
+        <pre>Q1 = revenue.<span class="fn">quantile</span>(.25)
+Q3 = revenue.<span class="fn">quantile</span>(.75)
+IQR = Q3 - Q1</pre>
+      </div>
+
+      <div class="grid2">
+        <div class="calc"><h3>Upper Bound</h3><pre>Q3 + 1.5 * IQR</pre></div>
+        <div class="calc"><h3>Lower Bound</h3><pre>Q1 - 1.5 * IQR</pre></div>
+      </div>
+
+      <div class="calc">
+        <h3>Detect</h3>
+        <pre><span class="kw">outliers</span> = df[
+    (revenue &lt; lower)
+    |
+    (revenue &gt; upper)
+]</pre>
+      </div>
+
+      <div class="calc">
+        <h3>Z-Score</h3>
+        <p class="note">Useful for large datasets.</p>
+        <pre><span class="fn">zscore</span>()</pre>
+      </div>
+
+      <div class="calc">
+        <h3>Outlier Percentage</h3>
+        <pre><span class="fn">len</span>(outliers) / <span class="fn">len</span>(df)</pre>
+      </div>
+
+      <div class="grid2">
+        <div class="calc"><h3>Largest Outliers</h3><pre><span class="fn">nlargest</span>(10)</pre></div>
+        <div class="calc"><h3>Smallest Outliers</h3><pre><span class="fn">nsmallest</span>(10)</pre></div>
+      </div>
+
+      <div class="calc">
+        <h3>Outlier Output</h3>
+        <pre><span class="kw">outliers</span> = {
+    <span class="strn">"count"</span>: ...,
+    <span class="strn">"percentage"</span>: ...,
+    <span class="strn">"largest"</span>: ...,
+    <span class="strn">"smallest"</span>: ...
+}</pre>
+      </div>
+    </section>
+
+    <!-- MVP vs PRODUCTION -->
+    <section class="module" id="sec6">
+      <div class="mod-head">
+        <span class="mod-index">—</span>
+        <h2>What I'd Consider MVP vs Production</h2>
+      </div>
+
+      <div class="mvp-table">
+        <div class="mvp-col mvp-min">
+          <h3>MVP</h3>
+          <div class="mvp-block">
+            <div class="mb-title">Data Quality</div>
+            <ul><li>nulls</li><li>duplicates</li></ul>
+          </div>
+          <div class="mvp-block">
+            <div class="mb-title">Statistics</div>
+            <ul><li>sum</li><li>mean</li><li>min</li><li>max</li></ul>
+          </div>
+          <div class="mvp-block">
+            <div class="mb-title">Correlations</div>
+            <ul><li>corr()</li></ul>
+          </div>
+          <div class="mvp-block">
+            <div class="mb-title">Trends</div>
+            <ul><li>monthly aggregation</li></ul>
+          </div>
+          <div class="mvp-block">
+            <div class="mb-title">Outliers</div>
+            <ul><li>IQR</li></ul>
+          </div>
+        </div>
+
+        <div class="mvp-col mvp-prod">
+          <h3>Production Version</h3>
+          <div class="mvp-block">
+            <div class="mb-title">Data Quality</div>
+            <ul><li>7+ checks</li></ul>
+          </div>
+          <div class="mvp-block">
+            <div class="mb-title">Statistics</div>
+            <ul><li>10+ metrics</li></ul>
+          </div>
+          <div class="mvp-block">
+            <div class="mb-title">Correlations</div>
+            <ul><li>driver ranking</li></ul>
+          </div>
+          <div class="mvp-block">
+            <div class="mb-title">Trends</div>
+            <ul><li>growth rates</li><li>moving averages</li><li>seasonality</li></ul>
+          </div>
+          <div class="mvp-block">
+            <div class="mb-title">Outliers</div>
+            <ul><li>IQR</li><li>Z-score</li><li>anomaly ranking</li></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Reference only — every calculation above is already implemented in <code>analysis.py</code>. No code was added, edited, or changed in producing this document.
+    </footer>
+  </main>
+</div>
+</body>
+</html>

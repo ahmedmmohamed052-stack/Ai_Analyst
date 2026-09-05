@@ -1,0 +1,21 @@
+.env
+.env.local
+__pycache__/
+*.pyc
+*.pdf
+.venv/
+venv/
+.pytest_cache/
+
+# Firebase service account credentials — these have admin access to your
+# Firestore data and must never be committed. Covers whatever you name the
+# downloaded key (Firebase Console → Project Settings → Service Accounts →
+# "Generate new private key"), including a plain firebase.json.
+firebase.json
+*serviceAccountKey*.json
+*firebase-adminsdk*.json
+
+# OS / editor cruft
+.DS_Store
+.idea/
+.vscode/

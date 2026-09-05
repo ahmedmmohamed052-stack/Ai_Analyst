@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI Analyst — your data, decoded</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<!-- ───────────────────────── AUTH SCREEN ───────────────────────── -->
+<div id="auth-screen" class="screen">
+  <div class="card auth-card">
+    <div class="brand">
+      <span class="brand-mark">✦</span>
+      <span class="brand-name">AI Analyst</span>
+    </div>
+    <p class="tagline">ask your data anything. get answers that actually slap.</p>
+
+    <div class="tabs">
+      <button class="tab active" id="tab-login">Log in</button>
+      <button class="tab" id="tab-signup">Sign up</button>
+    </div>
+
+    <!-- social auth -->
+    <div class="social-row">
+      <button id="google-btn" class="social-btn">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.56 2.7-3.87 2.7-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.94v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.17.28-1.7V4.97H.94A9 9 0 0 0 0 9c0 1.45.35 2.83.94 4.03l3.01-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .94 4.97l3.01 2.33C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
+        <span>Continue with Google</span>
+      </button>
+      <button id="apple-btn" class="social-btn apple">
+        <svg width="16" height="16" viewBox="0 0 384 512" fill="currentColor"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
+        <span>Continue with Apple</span>
+      </button>
+    </div>
+    <div class="divider"><span>or</span></div>
+
+    <div id="login-form">
+      <label class="field">
+        <span>Email</span>
+        <input id="login-email" type="email" placeholder="you@example.com" autocomplete="username" />
+      </label>
+      <label class="field">
+        <span>Password</span>
+        <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password" />
+      </label>
+      <button id="login-btn" class="primary-btn">Log in →</button>
+      <button id="forgot-btn" class="link-btn">Forgot password?</button>
+      <p id="login-error" class="error"></p>
+      <p class="muted small">Developer? Leave email blank and enter the access password instead.</p>
+    </div>
+
+    <div id="signup-form" class="hidden">
+      <label class="field">
+        <span>Full name</span>
+        <input id="signup-name" type="text" placeholder="Jordan Rivera" autocomplete="name" />
+      </label>
+      <label class="field">
+        <span>Email</span>
+        <input id="signup-email" type="email" placeholder="you@example.com" autocomplete="username" />
+      </label>
+      <label class="field">
+        <span>Password</span>
+        <input id="signup-password" type="password" placeholder="min 8 characters" autocomplete="new-password" />
+      </label>
+      <button id="signup-btn" class="primary-btn">Create account →</button>
+      <p id="signup-error" class="error"></p>
+    </div>
+
+    <!-- 6-digit email verification code step -->
+    <div id="otp-form" class="hidden">
+      <p class="otp-copy">We just sent a 6-digit code to <b id="otp-email-target"></b>. Pop it in below 👇</p>
+      <div class="otp-inputs">
+        <input maxlength="1" inputmode="numeric" class="otp-digit" />
+        <input maxlength="1" inputmode="numeric" class="otp-digit" />
+        <input maxlength="1" inputmode="numeric" class="otp-digit" />
+        <input maxlength="1" inputmode="numeric" class="otp-digit" />
+        <input maxlength="1" inputmode="numeric" class="otp-digit" />
+        <input maxlength="1" inputmode="numeric" class="otp-digit" />
+      </div>
+      <button id="otp-verify-btn" class="primary-btn">Verify email →</button>
+      <button id="otp-resend-btn" class="link-btn">Resend code</button>
+      <button id="otp-skip-btn" class="link-btn">Skip for now</button>
+      <p id="otp-error" class="error"></p>
+    </div>
+
+    <!-- forgot password mini-flow -->
+    <div id="forgot-form" class="hidden">
+      <label class="field">
+        <span>Email</span>
+        <input id="forgot-email" type="email" placeholder="you@example.com" />
+      </label>
+      <button id="forgot-send-btn" class="primary-btn">Send reset link →</button>
+      <button id="forgot-back-btn" class="link-btn">Back to log in</button>
+      <p id="forgot-note" class="muted small"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ───────────────────────── APP SCREEN ───────────────────────── -->
+<div id="app-screen" class="screen hidden">
+  <header>
+    <div class="brand">
+      <span class="brand-mark">✦</span>
+      <span class="brand-name">AI Analyst</span>
+    </div>
+    <div class="header-right">
+      <button id="verify-nudge" class="pill nudge hidden">verify email</button>
+      <span id="subscription-badge" class="pill badge hidden"></span>
+      <img id="user-avatar" class="avatar hidden" alt="" />
+      <button id="logout-btn" class="ghost-btn">Log out</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="billing-gate" class="hidden">
+      <div class="card wide">
+        <h2>Pick your plan ✦</h2>
+        <p class="muted">You need an active plan to start analyzing. Cancel anytime.</p>
+        <div id="plans-grid" class="plans-grid"></div>
+        <p id="billing-error" class="error"></p>
+      </div>
+    </section>
+
+    <section id="analysis-area" class="hidden">
+      <div class="hero-copy">
+        <h1>What's up with your business today?</h1>
+        <p class="muted">Ask in plain English. Get the receipts.</p>
+      </div>
+
+      <section id="team-section" class="hidden">
+        <div class="results-header">
+          <h2>Your team</h2>
+          <span id="team-seats-label" class="muted small"></span>
+        </div>
+        <div id="team-member-list"></div>
+        <div class="ask-box-footer" style="margin-top:10px;">
+          <input id="team-invite-email" type="email" placeholder="teammate@company.com" style="flex:1;" />
+          <button id="team-invite-btn" class="secondary-btn" style="width:auto;">Invite</button>
+        </div>
+        <p id="team-error" class="error"></p>
+      </section>
+
+      <section id="datasets-section">
+        <div class="results-header">
+          <h2>Your datasets</h2>
+          <div class="results-actions">
+            <button id="show-upload-btn" class="secondary-btn">Upload a file ⇧</button>
+            <button id="show-connect-btn" class="secondary-btn">Connect a database ⚡</button>
+          </div>
+        </div>
+        <div id="dataset-list"></div>
+
+        <div id="upload-form" class="card hidden">
+          <label class="field">
+            <span>Dataset name</span>
+            <input id="upload-name" type="text" placeholder="e.g. Q1 Sales Export" />
+          </label>
+          <label class="field">
+            <span>CSV or Excel file</span>
+            <input id="upload-file" type="file" accept=".csv,.xlsx,.xls" />
+          </label>
+          <div class="ask-box-footer">
+            <button id="upload-cancel-btn" class="link-btn" style="width:auto;">Cancel</button>
+            <button id="upload-submit-btn" class="primary-btn" style="width:auto;">Upload ⇧</button>
+          </div>
+          <p id="upload-error" class="error"></p>
+        </div>
+
+        <div id="connect-form" class="card hidden">
+          <label class="field">
+            <span>Dataset name</span>
+            <input id="connect-name" type="text" placeholder="e.g. Production Postgres" />
+          </label>
+          <label class="field">
+            <span>Database type</span>
+            <select id="connect-type">
+              <option value="postgres">PostgreSQL</option>
+              <option value="mysql">MySQL</option>
+            </select>
+          </label>
+          <label class="field"><span>Host</span><input id="connect-host" type="text" placeholder="db.example.com" /></label>
+          <label class="field"><span>Port</span><input id="connect-port" type="number" placeholder="5432" /></label>
+          <label class="field"><span>Database name</span><input id="connect-db" type="text" /></label>
+          <label class="field"><span>Username</span><input id="connect-user" type="text" /></label>
+          <label class="field"><span>Password</span><input id="connect-password" type="password" /></label>
+          <div class="ask-box-footer">
+            <button id="connect-cancel-btn" class="link-btn" style="width:auto;">Cancel</button>
+            <button id="connect-submit-btn" class="primary-btn" style="width:auto;">Connect ⚡</button>
+          </div>
+          <p id="connect-error" class="error"></p>
+        </div>
+      </section>
+
+      <div class="ask-box card">
+        <label class="field">
+          <span>Analyzing</span>
+          <select id="dataset-picker"></select>
+        </label>
+        <textarea id="question-input" placeholder="e.g. Why did revenue dip last quarter, and what should we do about it?"></textarea>
+        <div class="ask-box-footer">
+          <span id="followup-chip" class="chip hidden">↳ improving previous report <button id="followup-clear">✕</button></span>
+          <button id="ask-btn" class="primary-btn">Analyze ✦</button>
+        </div>
+        <p id="ask-error" class="error"></p>
+      </div>
+
+      <section id="loading" class="hidden">
+        <div class="loader-card card">
+          <div class="spinner"></div>
+          <p>Crunching the numbers… this can take a minute.</p>
+        </div>
+      </section>
+
+      <section id="results" class="hidden">
+        <div class="results-header">
+          <h2>Results</h2>
+          <div class="results-actions">
+            <button id="improve-btn" class="secondary-btn">Improve this ↻</button>
+            <button id="download-pdf-btn" class="secondary-btn">Download PDF ⇩</button>
+          </div>
+        </div>
+        <div id="results-content"></div>
+      </section>
+
+      <section id="history">
+        <h2>History</h2>
+        <div id="history-list"></div>
+      </section>
+    </section>
+  </main>
+</div>
+
+<script type="module" src="firebase-init.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
