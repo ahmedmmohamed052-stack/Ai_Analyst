@@ -256,6 +256,77 @@ a { color: inherit; }
   .fe-step:nth-child(even) { direction: ltr; }
   .hero h1 { font-size: 30px; }
 }
+
+/* ══════════════ ADDITIVE 3D EXTRAS (does not alter anything above) ══════════════ */
+
+/* 3D rotating wireframe orb — hero */
+.orb-scene {
+  width: 190px; height: 190px; margin: 30px auto 0; perspective: 900px;
+}
+.orb {
+  width: 100%; height: 100%; position: relative; transform-style: preserve-3d;
+  animation: orbSpin 14s linear infinite;
+}
+.orb-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 1.5px solid rgba(124,92,255,0.55);
+  box-shadow: 0 0 18px rgba(124,92,255,0.25) inset;
+}
+.orb-ring:nth-child(1) { transform: rotateX(0deg); border-color: rgba(124,92,255,0.6); }
+.orb-ring:nth-child(2) { transform: rotateX(60deg); border-color: rgba(255,92,179,0.55); }
+.orb-ring:nth-child(3) { transform: rotateX(120deg); border-color: rgba(56,224,200,0.55); }
+.orb-ring:nth-child(4) { transform: rotateY(90deg); border-color: rgba(124,92,255,0.35); }
+.orb-core {
+  position: absolute; inset: 38%; border-radius: 50%;
+  background: var(--gradient); filter: blur(1px);
+  box-shadow: 0 0 40px rgba(124,92,255,0.7), 0 0 80px rgba(255,92,179,0.3);
+  animation: orbCorePulse 2.6s ease-in-out infinite;
+}
+@keyframes orbSpin { from { transform: rotateY(0deg) rotateX(8deg); } to { transform: rotateY(360deg) rotateX(8deg); } }
+@keyframes orbCorePulse { 0%,100% { transform: scale(0.9); } 50% { transform: scale(1.15); } }
+
+/* 3D tilt wrapper — applied via JS to .fe-mock and .node-body, doesn't change their existing rules */
+.tilt-3d { transform-style: preserve-3d; will-change: transform; transition: transform .15s ease-out; }
+
+/* 3D rotating AI-core cube — engine room header */
+.core-cube-scene {
+  width: 84px; height: 84px; margin: 0 auto 18px; perspective: 500px;
+}
+.core-cube {
+  width: 100%; height: 100%; position: relative; transform-style: preserve-3d;
+  animation: cubeSpin 9s linear infinite;
+}
+.core-cube .face {
+  position: absolute; width: 84px; height: 84px;
+  border: 1px solid rgba(255,92,179,0.55);
+  background: rgba(124,92,255,0.08);
+  box-shadow: 0 0 20px rgba(255,92,179,0.15) inset;
+}
+.core-cube .f1 { transform: translateZ(42px); }
+.core-cube .f2 { transform: rotateY(180deg) translateZ(42px); }
+.core-cube .f3 { transform: rotateY(90deg) translateZ(42px); }
+.core-cube .f4 { transform: rotateY(-90deg) translateZ(42px); }
+.core-cube .f5 { transform: rotateX(90deg) translateZ(42px); }
+.core-cube .f6 { transform: rotateX(-90deg) translateZ(42px); }
+@keyframes cubeSpin { from { transform: rotateX(0deg) rotateY(0deg); } to { transform: rotateX(360deg) rotateY(360deg); } }
+
+/* subtle 3D depth for blobs on scroll (parallax) */
+.blob { transition: transform .2s ease-out; }
+
+/* floating particles layer behind the pipeline for extra depth */
+.particle-field { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.particle-field span {
+  position: absolute; width: 3px; height: 3px; border-radius: 50%;
+  background: var(--accent-3); opacity: .5;
+  animation: floatParticle linear infinite;
+  box-shadow: 0 0 6px var(--accent-3);
+}
+@keyframes floatParticle {
+  from { transform: translate3d(0,110%,0) scale(0.6); opacity: 0; }
+  10% { opacity: .7; }
+  90% { opacity: .5; }
+  to { transform: translate3d(0,-10%,0) scale(1.1); opacity: 0; }
+}
 </style>
 </head>
 <body>
@@ -287,6 +358,17 @@ a { color: inherit; }
   <h1>You ask one question.<br><span>18 AI reasoning stages</span> answer it.</h1>
   <p>Here's the honest, full picture — what you actually see on screen, and the much bigger engine running underneath that you never do. Scroll to watch it happen.</p>
   <div class="scroll-cue"><span>scroll to explore</span><span class="arrow">↓</span></div>
+
+  <!-- additive: 3D rotating wireframe orb -->
+  <div class="orb-scene">
+    <div class="orb">
+      <div class="orb-ring"></div>
+      <div class="orb-ring"></div>
+      <div class="orb-ring"></div>
+      <div class="orb-ring"></div>
+      <div class="orb-core"></div>
+    </div>
+  </div>
 </div>
 
 <!-- ───────────── SURFACE: WHAT YOU SEE ───────────── -->
@@ -343,7 +425,21 @@ a { color: inherit; }
 
 <!-- ───────────── ENGINE ROOM ───────────── -->
 <div class="engine-room">
+  <!-- additive: floating particle depth layer -->
+  <div class="particle-field" id="particle-field"></div>
+
   <div class="engine-head">
+    <!-- additive: 3D rotating AI-core cube -->
+    <div class="core-cube-scene">
+      <div class="core-cube">
+        <div class="face f1"></div>
+        <div class="face f2"></div>
+        <div class="face f3"></div>
+        <div class="face f4"></div>
+        <div class="face f5"></div>
+        <div class="face f6"></div>
+      </div>
+    </div>
     <span class="eyebrow">What you don't see</span>
     <h2>The 18-stage AI engine</h2>
     <p>Your dataset gets queried, quality-checked, statistically analyzed, correlated, trended, and audited for outliers — with an LLM interpreting the meaning of every result along the way — before anything is written to your report.</p>
@@ -598,6 +694,64 @@ updatePipeline();
 document.getElementById('replay-btn').addEventListener('click', () => {
   document.getElementById('plunge').scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
+
+/* ══════════════ ADDITIVE 3D EXTRAS (does not touch anything above) ══════════════ */
+
+// ---------- floating particle field behind the pipeline ----------
+(function spawnParticles(){
+  const field = document.getElementById('particle-field');
+  if (!field) return;
+  const count = 34;
+  for (let i = 0; i < count; i++){
+    const p = document.createElement('span');
+    const left = Math.random() * 100;
+    const duration = 6 + Math.random() * 10;
+    const delay = Math.random() * -16;
+    const size = 2 + Math.random() * 3;
+    p.style.left = left + '%';
+    p.style.width = p.style.height = size + 'px';
+    p.style.animationDuration = duration + 's';
+    p.style.animationDelay = delay + 's';
+    field.appendChild(p);
+  }
+})();
+
+// ---------- 3D tilt-on-hover for front-end mockup cards & pipeline node bodies ----------
+(function enable3DTilt(){
+  const tiltables = document.querySelectorAll('.fe-mock, .node-body');
+  tiltables.forEach(el => {
+    el.classList.add('tilt-3d');
+    el.style.perspective = '600px';
+    el.addEventListener('mousemove', (e) => {
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      el.style.transform = `rotateX(${(-y * 8).toFixed(2)}deg) rotateY(${(x * 10).toFixed(2)}deg) translateZ(4px)`;
+    });
+    el.addEventListener('mouseleave', () => {
+      el.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
+    });
+  });
+})();
+
+// ---------- gentle 3D parallax drift for the ambient blobs on scroll ----------
+(function parallaxBlobs(){
+  const blobs = document.querySelectorAll('.blob');
+  if (!blobs.length) return;
+  let ticking2 = false;
+  window.addEventListener('scroll', () => {
+    if (ticking2) return;
+    window.requestAnimationFrame(() => {
+      const y = window.scrollY;
+      blobs.forEach((b, i) => {
+        const depth = (i + 1) * 0.04;
+        b.style.transform = `translate3d(0, ${y * depth * -1}px, 0) scale(${1 + y * 0.00006})`;
+      });
+      ticking2 = false;
+    });
+    ticking2 = true;
+  });
+})();
 </script>
 </body>
 </html>

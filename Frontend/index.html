@@ -7,6 +7,30 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css" />
+<style>
+/* ── prominent "How it works" entry points (additive, doesn't touch style.css) ── */
+.hiw-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--gradient); background-size: 200% 200%;
+  color: #0b0a14; font-family: var(--font-display); font-weight: 700;
+  font-size: 14.5px; padding: 12px 22px; border-radius: 999px;
+  text-decoration: none; border: none; cursor: pointer;
+  box-shadow: 0 0 0 0 rgba(124,92,255,0.55), 0 10px 26px rgba(124,92,255,0.28);
+  animation: hiwGradient 5s ease infinite, hiwPulse 2.4s ease-in-out infinite;
+  transition: transform 0.18s ease, filter 0.18s ease;
+}
+.hiw-btn:hover { transform: translateY(-2px) scale(1.03); filter: brightness(1.08); }
+.hiw-btn .spark { display: inline-block; animation: hiwSpin 3s linear infinite; }
+@keyframes hiwGradient { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes hiwPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(124,92,255,0.45), 0 10px 26px rgba(124,92,255,0.28); }
+  50% { box-shadow: 0 0 0 10px rgba(124,92,255,0), 0 10px 30px rgba(124,92,255,0.4); }
+}
+@keyframes hiwSpin { to { transform: rotate(360deg); } }
+
+.hiw-btn-auth { width: 100%; justify-content: center; margin: 6px 0 20px; padding: 13px 22px; font-size: 15px; }
+.hiw-btn-header { padding: 9px 18px; font-size: 13px; }
+</style>
 </head>
 <body>
 
@@ -22,7 +46,7 @@
     </div>
     <p class="tagline">ask your data anything. get answers that actually slap.</p>
 
-    <a href="how-it-works.html" class="link-btn how-it-works-link" style="display:inline-block;width:auto;margin:0 0 18px;">✦ See how it works</a>
+    <a href="how-it-works.html" class="hiw-btn hiw-btn-auth"><span class="spark">✦</span> See how it works</a>
 
     <div class="tabs">
       <button class="tab active" id="tab-login">Log in</button>
@@ -112,7 +136,7 @@
       <span class="brand-name">AI Analyst</span>
     </div>
     <div class="header-right">
-      <a href="how-it-works.html" class="ghost-btn" style="text-decoration:none;display:inline-block;">How it works ✦</a>
+      <a href="how-it-works.html" class="hiw-btn hiw-btn-header"><span class="spark">✦</span> How it works</a>
       <button id="verify-nudge" class="pill nudge hidden">verify email</button>
       <span id="subscription-badge" class="pill badge hidden"></span>
       <img id="user-avatar" class="avatar hidden" alt="" />
