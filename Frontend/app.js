@@ -1,5 +1,17 @@
 const API_BASE = ""; // same-origin; change if the API is hosted elsewhere
 
+// ── i18n helpers (engine lives in i18n.js, strings in i18n-app.js) ─────
+const t = (key, vars) => I18N.t(key, vars);
+// Backend errors come back as English `detail` strings — translate when we can.
+const apiError = (body, fallbackKey) => (body && body.detail ? I18N.tError(body.detail) : t(fallbackKey));
+// Escape anything user-supplied before it goes into innerHTML.
+const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const planLabel = (planId, fallback) => {
+  const key = "plan." + planId;
+  const label = t(key);
+  return label === key ? (fallback || planId) : label;
+};
+
 // ── Elements ────────────────────────────────────────────────────────────
 const authScreen = document.getElementById("auth-screen");
 const appScreen = document.getElementById("app-screen");
@@ -150,7 +162,7 @@ async function login() {
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      throw new Error(body.detail || "Login failed.");
+      throw new Error(apiError(body, "msg.login_failed"));
     }
     const data = await res.json();
     setToken(data.access_token);
@@ -166,7 +178,7 @@ async function signup() {
   const email = signupEmail.value.trim();
   const password = signupPassword.value;
   if (password.length < 8) {
-    signupError.textContent = "Password must be at least 8 characters.";
+    signupError.textContent = t("msg.pw_short");
     return;
   }
   try {
@@ -177,7 +189,7 @@ async function signup() {
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      throw new Error(body.detail || "Signup failed.");
+      throw new Error(apiError(body, "msg.signup_failed"));
     }
     const data = await res.json();
     setToken(data.access_token);
@@ -215,7 +227,7 @@ forgotSendBtn.addEventListener("click", async () => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),
   });
-  forgotNote.textContent = "If that email has an account, a reset link is on its way.";
+  forgotNote.textContent = t("msg.reset_sent");
 });
 
 // ── Email verification (6-digit code) ──────────────────────────────────
@@ -241,7 +253,7 @@ async function verifyOtp() {
   otpError.textContent = "";
   const code = otpDigits.map((d) => d.value).join("");
   if (code.length !== 6) {
-    otpError.textContent = "Enter all 6 digits.";
+    otpError.textContent = t("msg.otp_incomplete");
     return;
   }
   try {
@@ -252,7 +264,7 @@ async function verifyOtp() {
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      throw new Error(body.detail || "That code didn't work.");
+      throw new Error(apiError(body, "msg.otp_bad"));
     }
     showApp();
   } catch (e) {
@@ -268,7 +280,7 @@ otpResendBtn.addEventListener("click", async () => {
     method: "POST",
     headers: authHeaders(),
   });
-  otpError.textContent = res.ok ? "Sent — check your inbox." : "Couldn't resend right now.";
+  otpError.textContent = res.ok ? t("msg.otp_resent") : t("msg.otp_resend_fail");
 });
 
 // ── Google / Apple sign-in (via Firebase, see firebase-init.js) ───────
@@ -277,7 +289,7 @@ async function socialSignIn(getIdToken, button) {
   button.disabled = true;
   try {
     if (!window.firebaseAuthReady) {
-      throw new Error("Sign-in is still loading — try again in a second.");
+      throw new Error(t("msg.social_loading"));
     }
     const idToken = await getIdToken();
     const res = await fetch(`${API_BASE}/auth/firebase`, {
@@ -287,13 +299,13 @@ async function socialSignIn(getIdToken, button) {
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      throw new Error(body.detail || "Sign-in failed.");
+      throw new Error(apiError(body, "msg.social_failed"));
     }
     const data = await res.json();
     setToken(data.access_token);
     showApp();
   } catch (e) {
-    loginError.textContent = e.message || "Sign-in was cancelled or failed.";
+    loginError.textContent = e.message || t("msg.social_cancelled");
   } finally {
     button.disabled = false;
   }
@@ -326,13 +338,14 @@ async function refreshAccountState() {
       daysLeft = Math.max(0, Math.ceil((new Date(me.subscription.expires_at) - new Date()) / (1000 * 60 * 60 * 24)));
     }
     subscriptionBadge.classList.remove("hidden");
+    const badgePlan = me.subscription ? planLabel(me.subscription.plan, me.subscription.plan) : "";
     subscriptionBadge.textContent = me.is_owner
-      ? "Owner account"
+      ? t("badge.owner")
       : isTrial
-        ? `${me.subscription.plan} trial — ${daysLeft}d left (cancel)`
+        ? t("badge.trial", { plan: badgePlan, d: daysLeft })
         : isTeamMember
-          ? `${me.subscription.plan} — team seat`
-          : `${me.subscription.plan} — active (cancel)`;
+          ? t("badge.team", { plan: badgePlan })
+          : t("badge.active", { plan: badgePlan });
     subscriptionBadge.onclick = (me.is_owner || isTeamMember) ? null : cancelSubscription;
     subscriptionBadge.style.cursor = (me.is_owner || isTeamMember) ? "default" : "pointer";
     billingGate.classList.add("hidden");
@@ -349,7 +362,7 @@ async function refreshAccountState() {
 
   if (!me.is_owner && !me.email_verified) {
     verifyNudge.classList.remove("hidden");
-    billingError.textContent = "Your email isn't verified yet — check your inbox for a code.";
+    billingError.textContent = t("msg.unverified");
   } else {
     verifyNudge.classList.add("hidden");
   }
@@ -369,7 +382,7 @@ verifyNudge.addEventListener("click", async () => {
 });
 
 async function cancelSubscription() {
-  if (!confirm("Cancel your subscription? Access ends immediately.")) return;
+  if (!confirm(t("confirm.cancel_sub"))) return;
   await fetch(`${API_BASE}/billing/cancel`, { method: "POST", headers: authHeaders() });
   refreshAccountState();
 }
@@ -391,24 +404,24 @@ async function loadPlans() {
     const trial = trials[planId];
     const card = document.createElement("div");
     card.className = "plan-card";
-    const perks = [`${plan.analyze_per_day} analyses/day`];
-    if (plan.max_seats > 1) perks.push(`${plan.max_seats} team seats`);
-    if (plan.priority_support) perks.push("priority support");
+    const perks = [t("plan.perk.analyses", { n: plan.analyze_per_day })];
+    if (plan.max_seats > 1) perks.push(t("plan.perk.seats", { n: plan.max_seats }));
+    if (plan.priority_support) perks.push(t("plan.perk.support"));
 
     let trialHtml = "";
     if (trial && !trialUsed) {
       trialHtml = `<button class="secondary-btn" data-trial-plan="${planId}" style="width:100%; margin-top:8px;">
-        ${trial.trial_days}-day free trial — no card needed
+        ${t("plan.trial", { d: trial.trial_days })}
       </button>`;
     } else if (trial && trial.convert_bonus_days > 0) {
-      trialHtml = `<p class="muted small" style="margin-top:8px;">+${trial.convert_bonus_days} bonus days if you tried this plan's trial first</p>`;
+      trialHtml = `<p class="muted small" style="margin-top:8px;">${t("plan.bonus", { d: trial.convert_bonus_days })}</p>`;
     }
 
     card.innerHTML = `
-      <h3>${plan.label}</h3>
-      <div class="price">$${plan.price_usd}<span>/mo</span></div>
+      <h3>${esc(planLabel(planId, plan.label))}</h3>
+      <div class="price"><bdi>$${plan.price_usd}</bdi><span>${t("plan.per_month")}</span></div>
       <p class="muted small">${perks.join(" · ")}</p>
-      <button class="primary-btn" data-plan="${planId}">Choose</button>
+      <button class="primary-btn" data-plan="${planId}">${t("plan.choose")}</button>
       ${trialHtml}
     `;
     card.querySelector("[data-plan]").addEventListener("click", () => checkout(planId));
@@ -428,7 +441,7 @@ async function checkout(planId) {
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      throw new Error(body.detail || "Could not start checkout.");
+      throw new Error(apiError(body, "msg.checkout_failed"));
     }
     const data = await res.json();
     // Send the user to Paymob's hosted payment page. After paying, Paymob
@@ -451,7 +464,7 @@ async function startTrial(planId) {
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      throw new Error(body.detail || "Could not start your trial.");
+      throw new Error(apiError(body, "msg.trial_failed"));
     }
     await refreshAccountState();
   } catch (e) {
@@ -474,16 +487,16 @@ async function loadTeamPanel(teamRole) {
     return;
   }
   const body = await res.json();
-  teamSeatsLabel.textContent = `${body.used_seats} / ${body.max_seats} seats used`;
+  teamSeatsLabel.textContent = t("team.seats_used", { used: body.used_seats, max: body.max_seats });
 
   teamMemberList.innerHTML = "";
   if (body.members.length === 0) {
-    teamMemberList.innerHTML = '<p class="muted small">Just you so far — invite a teammate below.</p>';
+    teamMemberList.innerHTML = `<p class="muted small">${t("team.empty")}</p>`;
   }
   for (const m of body.members) {
     const item = document.createElement("div");
     item.className = "team-member-item";
-    item.innerHTML = `<span class="tm-email">${m.email}</span><button class="tm-remove" data-id="${m.id}">Remove</button>`;
+    item.innerHTML = `<span class="tm-email" dir="ltr">${esc(m.email)}</span><button class="tm-remove" data-id="${esc(m.id)}">${t("team.remove")}</button>`;
     item.querySelector(".tm-remove").addEventListener("click", () => removeTeamMember(m.id));
     teamMemberList.appendChild(item);
   }
@@ -502,7 +515,7 @@ teamInviteBtn.addEventListener("click", async () => {
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      throw new Error(body.detail || "Could not add that person.");
+      throw new Error(apiError(body, "msg.invite_failed"));
     }
     teamInviteEmail.value = "";
     await refreshAccountState();
@@ -514,7 +527,7 @@ teamInviteBtn.addEventListener("click", async () => {
 });
 
 async function removeTeamMember(id) {
-  if (!confirm("Remove this teammate from your plan?")) return;
+  if (!confirm(t("confirm.remove_member"))) return;
   await fetch(`${API_BASE}/team/members/${id}`, { method: "DELETE", headers: authHeaders() });
   refreshAccountState();
 }
@@ -540,17 +553,17 @@ async function loadDatasets() {
 
   datasetList.innerHTML = "";
   if (datasetsCache.length === 0) {
-    datasetList.innerHTML = '<p class="muted">No datasets yet — upload a file or connect a database to get started.</p>';
+    datasetList.innerHTML = `<p class="muted">${t("ds.empty")}</p>`;
   }
   for (const d of datasetsCache) {
     const item = document.createElement("div");
     item.className = "dataset-item";
     const meta = d.source_type === "file"
-      ? `${d.row_count} rows · ${d.columns.length} columns`
+      ? t("ds.meta.file", { rows: d.row_count, cols: d.columns.length })
       : `${d.db_type} · ${d.host}/${d.database}`;
     item.innerHTML = `
-      <div><div class="ds-name">${d.name}</div><div class="ds-meta">${meta}</div></div>
-      <button class="ds-remove" data-id="${d.id}">Remove</button>
+      <div><div class="ds-name">${esc(d.name)}</div><div class="ds-meta">${esc(meta)}</div></div>
+      <button class="ds-remove" data-id="${esc(d.id)}">${t("ds.remove")}</button>
     `;
     item.querySelector(".ds-remove").addEventListener("click", () => removeDataset(d.id));
     datasetList.appendChild(item);
@@ -559,7 +572,7 @@ async function loadDatasets() {
   const previouslySelected = datasetPicker.value;
   datasetPicker.innerHTML = "";
   if (datasetsCache.length === 0) {
-    datasetPicker.innerHTML = '<option value="">No datasets yet — add one above</option>';
+    datasetPicker.innerHTML = `<option value="">${t("ds.picker.empty")}</option>`;
   } else {
     for (const d of datasetsCache) {
       const opt = document.createElement("option");
@@ -574,7 +587,7 @@ async function loadDatasets() {
 }
 
 async function removeDataset(id) {
-  if (!confirm("Remove this dataset? This can't be undone.")) return;
+  if (!confirm(t("confirm.remove_dataset"))) return;
   await fetch(`${API_BASE}/datasets/${id}`, { method: "DELETE", headers: authHeaders() });
   loadDatasets();
 }
@@ -584,7 +597,7 @@ uploadSubmitBtn.addEventListener("click", async () => {
   const name = uploadName.value.trim();
   const file = uploadFile.files[0];
   if (!name || !file) {
-    uploadError.textContent = "Give it a name and pick a file.";
+    uploadError.textContent = t("msg.upload_fields");
     return;
   }
   uploadSubmitBtn.disabled = true;
@@ -599,7 +612,7 @@ uploadSubmitBtn.addEventListener("click", async () => {
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      throw new Error(body.detail || "Upload failed.");
+      throw new Error(apiError(body, "msg.upload_failed"));
     }
     uploadName.value = "";
     uploadFile.value = "";
@@ -624,7 +637,7 @@ connectSubmitBtn.addEventListener("click", async () => {
     password: connectPassword.value,
   };
   if (!payload.name || !payload.host || !payload.database || !payload.user || !payload.port) {
-    connectError.textContent = "Fill in all fields.";
+    connectError.textContent = t("msg.connect_fields");
     return;
   }
   connectSubmitBtn.disabled = true;
@@ -636,7 +649,7 @@ connectSubmitBtn.addEventListener("click", async () => {
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      throw new Error(body.detail || "Could not connect.");
+      throw new Error(apiError(body, "msg.connect_failed"));
     }
     [connectName, connectHost, connectPort, connectDb, connectUser, connectPassword].forEach((el) => (el.value = ""));
     showDatasetForm(null);
@@ -649,44 +662,45 @@ connectSubmitBtn.addEventListener("click", async () => {
 });
 
 // ── Analysis ────────────────────────────────────────────────────────────
-function renderSection(title, value) {
+function renderSection(title, value, key) {
   const section = document.createElement("section");
   const h3 = document.createElement("h3");
   h3.textContent = title;
   const pre = document.createElement("pre");
   pre.textContent = typeof value === "string" ? value : JSON.stringify(value, null, 2);
+  // SQL is always left-to-right; report prose picks its direction from its own text (Arabic or English).
+  pre.setAttribute("dir", key === "sql_query" ? "ltr" : "auto");
   section.appendChild(h3);
   section.appendChild(pre);
   return section;
 }
 
+let lastResult = null; // kept so the section titles can be re-rendered when the language is toggled
+
 function renderResults(result) {
+  lastResult = result;
   resultsContent.innerHTML = "";
   const order = [
-    ["Business Context", "business_context"],
-    ["SQL Query", "sql_query"],
-    ["Data Quality", "quality_interpretation"],
-    ["Statistics", "statistics_interpretation"],
-    ["Correlations", "correlation_interpretation"],
-    ["Trend", "trend_interpretation"],
-    ["Outliers", "outlier_interpretation"],
-    ["More Analysis", "more_analysis_interpretation"],
-    ["EDA", "eda"],
-    ["Root Cause", "root_cause"],
-    ["Insights", "insights"],
-    ["Recommendations", "recommendations"],
+    "business_context", "sql_query", "quality_interpretation", "statistics_interpretation",
+    "correlation_interpretation", "trend_interpretation", "outlier_interpretation",
+    "more_analysis_interpretation", "eda", "root_cause", "insights", "recommendations",
   ];
-  for (const [title, key] of order) {
+  for (const key of order) {
     if (result[key] !== undefined) {
-      resultsContent.appendChild(renderSection(title, result[key]));
+      resultsContent.appendChild(renderSection(t("res." + key), result[key], key));
     }
   }
   resultsSection.classList.remove("hidden");
 }
 
+function updateQuestionPlaceholder() {
+  questionInput.placeholder = followUpFromReportId ? t("ph.question.followup") : t("ph.question");
+}
+
 function clearFollowUp() {
   followUpFromReportId = null;
   followupChip.classList.add("hidden");
+  updateQuestionPlaceholder();
 }
 followupClear.addEventListener("click", clearFollowUp);
 
@@ -695,11 +709,11 @@ async function ask() {
   const question = questionInput.value.trim();
   const datasetId = datasetPicker.value;
   if (!datasetId) {
-    askError.textContent = "Add a dataset first (upload a file or connect a database above).";
+    askError.textContent = t("msg.need_dataset");
     return;
   }
   if (!question) {
-    askError.textContent = "Type a question first.";
+    askError.textContent = t("msg.need_question");
     return;
   }
 
@@ -711,22 +725,22 @@ async function ask() {
     const res = await fetch(`${API_BASE}/analyze`, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...authHeaders() },
-      body: JSON.stringify({ question, dataset_id: datasetId, prior_report_id: followUpFromReportId }),
+      body: JSON.stringify({ question, dataset_id: datasetId, prior_report_id: followUpFromReportId, language: I18N.lang() }),
     });
     if (res.status === 401) {
       logout();
-      throw new Error("Session expired — please log in again.");
+      throw new Error(t("msg.session_expired"));
     }
     if (res.status === 402) {
-      throw new Error("Your subscription is no longer active. Please renew.");
+      throw new Error(t("msg.sub_inactive"));
     }
     if (res.status === 429) {
       const body = await res.json().catch(() => ({}));
-      throw new Error(body.detail || "Daily analysis limit reached.");
+      throw new Error(apiError(body, "msg.limit_reached"));
     }
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      throw new Error(body.detail || "Analysis failed.");
+      throw new Error(apiError(body, "msg.analysis_failed"));
     }
     const data = await res.json();
     currentReportId = data.report_id;
@@ -746,7 +760,7 @@ function improveCurrent() {
   followUpFromReportId = currentReportId;
   followupChip.classList.remove("hidden");
   questionInput.value = "";
-  questionInput.placeholder = "What should the AI dig into or fix from that last report?";
+  updateQuestionPlaceholder();
   questionInput.focus();
   window.scrollTo({ top: questionInput.offsetTop - 100, behavior: "smooth" });
 }
@@ -773,14 +787,14 @@ async function loadHistory() {
 
   historyList.innerHTML = "";
   if (reports.length === 0) {
-    historyList.innerHTML = '<p class="muted">No analyses yet — ask your first question above.</p>';
+    historyList.innerHTML = `<p class="muted">${t("history.empty")}</p>`;
     return;
   }
   for (const r of reports) {
     const item = document.createElement("div");
     item.className = "history-item";
-    const date = new Date(r.created_at).toLocaleString();
-    item.innerHTML = `<span class="q">${r.question}</span><span class="date">${date}</span>`;
+    const date = I18N.formatDate(r.created_at);
+    item.innerHTML = `<span class="q" dir="auto">${esc(r.question)}</span><span class="date">${esc(date)}</span>`;
     item.addEventListener("click", () => downloadPdf(r.id));
     historyList.appendChild(item);
   }
@@ -790,7 +804,18 @@ askBtn.addEventListener("click", ask);
 downloadPdfBtn.addEventListener("click", () => downloadPdf());
 improveBtn.addEventListener("click", improveCurrent);
 
+// ── Language switch ─────────────────────────────────────────────────────
+// Static text is re-translated by i18n.js itself; this re-renders everything
+// that app.js builds dynamically (badge, plans, datasets, history, results).
+window.addEventListener("langchange", () => {
+  document.querySelectorAll(".error").forEach((el) => (el.textContent = ""));
+  updateQuestionPlaceholder();
+  if (lastResult) renderResults(lastResult);
+  if (!appScreen.classList.contains("hidden")) refreshAccountState();
+});
+
 // ── Boot ────────────────────────────────────────────────────────────────
+updateQuestionPlaceholder();
 if (getToken()) {
   showApp();
 } else {

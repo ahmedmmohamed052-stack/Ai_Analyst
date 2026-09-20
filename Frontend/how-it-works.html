@@ -3,9 +3,11 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>How AI Analyst works — behind the curtain</title>
+<title data-i18n="h.title">How AI Analyst works — behind the curtain</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="i18n.js"></script>
+<script src="i18n-hiw.js"></script>
 <style>
 :root {
   --bg: #0b0a14;
@@ -71,7 +73,7 @@ a { color: inherit; }
   transition: background .3s ease, transform .3s ease, box-shadow .3s ease;
 }
 .tracker .tstop.active { background: var(--accent-3); transform: scale(1.35); box-shadow: 0 0 10px var(--accent-3); }
-.tracker-label { font-size: 11.5px; color: var(--muted); min-width: 118px; text-align: right; }
+.tracker-label { font-size: 11.5px; color: var(--muted); min-width: 118px; text-align: end; }
 @media (max-width: 760px) { .tracker-label { display: none; } }
 
 /* ── hero ── */
@@ -126,9 +128,9 @@ a { color: inherit; }
   margin-top: 12px; display: inline-block; background: var(--gradient); color: #0b0a14;
   font-weight: 700; font-size: 13.5px; padding: 10px 18px; border-radius: var(--radius-sm);
 }
-.typewriter { border-right: 2px solid var(--accent-3); white-space: nowrap; overflow: hidden; display: inline-block; }
+.typewriter { border-inline-end: 2px solid var(--accent-3); white-space: nowrap; overflow: hidden; display: inline-block; }
 .fe-mock .fake-select { background: rgba(0,0,0,0.28); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 13.5px; display:flex; justify-content:space-between; }
-.fe-mock .fake-spinner { width: 18px; height: 18px; border-radius: 50%; border: 3px solid rgba(255,255,255,.15); border-top-color: var(--accent-3); animation: spin .8s linear infinite; display:inline-block; vertical-align:middle; margin-right:10px; }
+.fe-mock .fake-spinner { width: 18px; height: 18px; border-radius: 50%; border: 3px solid rgba(255,255,255,.15); border-top-color: var(--accent-3); animation: spin .8s linear infinite; display:inline-block; vertical-align:middle; margin-inline-end:10px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .fe-mock .fake-result { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; margin-top: 8px; }
 .fe-mock .fake-result h4 { margin:0 0 6px; font-size: 11px; color: var(--accent-3); text-transform: uppercase; letter-spacing: .05em; }
@@ -177,11 +179,11 @@ a { color: inherit; }
 /* pipeline */
 .pipeline { max-width: 640px; margin: 0 auto; position: relative; }
 .pipeline-track {
-  position: absolute; left: 27px; top: 0; bottom: 0; width: 2px;
+  position: absolute; inset-inline-start: 27px; top: 0; bottom: 0; width: 2px;
   background: rgba(255,255,255,0.08);
 }
 .pipeline-fill {
-  position: absolute; left: 27px; top: 0; width: 2px; height: 0%;
+  position: absolute; inset-inline-start: 27px; top: 0; width: 2px; height: 0%;
   background: linear-gradient(180deg, var(--accent), var(--accent-2), var(--accent-3));
   transition: height .25s linear;
   box-shadow: 0 0 12px var(--accent);
@@ -336,6 +338,30 @@ a { color: inherit; }
   90% { opacity: .5; }
   to { transform: translate3d(0,-10%,0) scale(1.1); opacity: 0; }
 }
+/* ══════════════ ARABIC / RTL (active when <html lang="ar" dir="rtl">) ══════════════ */
+html[lang="ar"] {
+  --font-display: "Tajawal", "Space Grotesk", "Inter", sans-serif;
+  --font-body: "Tajawal", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+/* letter-spacing breaks Arabic letter joining */
+html[lang="ar"] * { letter-spacing: 0 !important; }
+html[lang="ar"] p { line-height: 1.75; }
+html[lang="ar"] .hero h1 { line-height: 1.4; }
+html[lang="ar"] .tracker-label { min-width: 150px; }
+.topbar-end { display: flex; align-items: center; gap: 12px; }
+
+/* alternating step layout: the original flips even rows with direction:rtl; mirror that for an RTL page */
+html[dir="rtl"] .fe-step:nth-child(even) { direction: ltr; }
+html[dir="rtl"] .fe-step > *,
+html[dir="rtl"] .fe-step:nth-child(even) > * { direction: rtl; }
+
+/* pipeline nodes slide in from the other side */
+html[dir="rtl"] .node { transform: translateX(8px); }
+html[dir="rtl"] .node.active, html[dir="rtl"] .node.done { transform: translateX(0); }
+html[dir="rtl"] .back-btn:hover { transform: translateX(2px); }
+
+/* SQL snippet stays left-to-right */
+.node-code { direction: ltr; text-align: left; unicode-bidi: isolate; }
 </style>
 </head>
 <body>
@@ -358,15 +384,18 @@ a { color: inherit; }
     <div class="tstop" data-phase="5"></div>
   </div>
   <span class="tracker-label" id="tracker-label">You ask a question</span>
-  <a href="index.html" class="back-btn">← Back to app</a>
+  <div class="topbar-end">
+    <div data-lang-toggle></div>
+    <a href="index.html" class="back-btn" data-i18n="h.back">← Back to app</a>
+  </div>
 </div>
 
 <!-- ───────────── HERO ───────────── -->
 <div class="hero">
-  <span class="eyebrow">How it works</span>
-  <h1>You ask one question.<br><span>18 AI reasoning stages</span> answer it.</h1>
-  <p>Here's the honest, full picture — what you actually see on screen, and the much bigger engine running underneath that you never do. Scroll to watch it happen.</p>
-  <div class="scroll-cue"><span>scroll to explore</span><span class="arrow">↓</span></div>
+  <span class="eyebrow" data-i18n="h.eyebrow">How it works</span>
+  <h1 data-i18n-html="h.h1">You ask one question.<br><span>18 AI reasoning stages</span> answer it.</h1>
+  <p data-i18n="h.hero.p">Here's the honest, full picture — what you actually see on screen, and the much bigger engine running underneath that you never do. Scroll to watch it happen.</p>
+  <div class="scroll-cue"><span data-i18n="h.scroll">scroll to explore</span><span class="arrow">↓</span></div>
 
   <!-- additive: 3D rotating wireframe orb -->
   <div class="orb-scene">
@@ -382,53 +411,53 @@ a { color: inherit; }
 
 <!-- ───────────── SURFACE: WHAT YOU SEE ───────────── -->
 <div class="section-wrap" data-phase-section="0">
-  <div class="phase-tag"><span class="n">👁</span> What you see — step 1 of 3</div>
+  <div class="phase-tag"><span class="n">👁</span> <span data-i18n="h.see1">What you see — step 1 of 3</span></div>
   <div class="fe-step" data-phase="0">
     <div class="fe-copy">
-      <h3>1. Ask anything, in plain English</h3>
-      <p>No SQL, no filters, no dashboards to configure. Just type the business question you actually care about.</p>
+      <h3 data-i18n="h.s1.h">1. Ask anything, in plain English</h3>
+      <p data-i18n="h.s1.p">No SQL, no filters, no dashboards to configure. Just type the business question you actually care about.</p>
     </div>
     <div class="fe-mock">
-      <div class="fake-label">Ask AI Analyst</div>
+      <div class="fake-label" data-i18n="h.s1.label">Ask AI Analyst</div>
       <div class="fake-input"><span class="typewriter" id="tw">Why did revenue dip last quarter?</span></div>
-      <span class="fake-btn">Analyze ✦</span>
+      <span class="fake-btn" data-i18n="h.analyze">Analyze ✦</span>
     </div>
   </div>
 </div>
 
 <div class="section-wrap" data-phase-section="1">
-  <div class="phase-tag"><span class="n">👁</span> What you see — step 2 of 3</div>
+  <div class="phase-tag"><span class="n">👁</span> <span data-i18n="h.see2">What you see — step 2 of 3</span></div>
   <div class="fe-step" data-phase="1">
     <div class="fe-copy">
-      <h3>2. Pick the dataset, hit go</h3>
-      <p>Choose which uploaded file or connected database the question applies to, then press Analyze. That's the last thing you have to do.</p>
+      <h3 data-i18n="h.s2.h">2. Pick the dataset, hit go</h3>
+      <p data-i18n="h.s2.p">Choose which uploaded file or connected database the question applies to, then press Analyze. That's the last thing you have to do.</p>
     </div>
     <div class="fe-mock">
-      <div class="fake-label">Analyzing</div>
+      <div class="fake-label" data-i18n="h.s2.label">Analyzing</div>
       <div class="fake-select"><span>Q3 Sales Export.csv</span><span>▾</span></div>
-      <span class="fake-btn">Analyze ✦</span>
+      <span class="fake-btn" data-i18n="h.analyze">Analyze ✦</span>
     </div>
   </div>
 </div>
 
 <div class="section-wrap" data-phase-section="2">
-  <div class="phase-tag"><span class="n">👁</span> What you see — step 3 of 3</div>
+  <div class="phase-tag"><span class="n">👁</span> <span data-i18n="h.see3">What you see — step 3 of 3</span></div>
   <div class="fe-step" data-phase="2">
     <div class="fe-copy">
-      <h3>3. A short "crunching the numbers" spinner…</h3>
-      <p>This is the part everyone sees. It looks quiet. It is not quiet — keep scrolling to see what's actually happening while this spinner turns.</p>
+      <h3 data-i18n="h.s3.h">3. A short "crunching the numbers" spinner…</h3>
+      <p data-i18n="h.s3.p">This is the part everyone sees. It looks quiet. It is not quiet — keep scrolling to see what's actually happening while this spinner turns.</p>
     </div>
     <div class="fe-mock">
-      <div class="fake-label">Status</div>
-      <div class="fake-input"><span class="fake-spinner"></span>Crunching the numbers…</div>
+      <div class="fake-label" data-i18n="h.s3.label">Status</div>
+      <div class="fake-input"><span class="fake-spinner"></span><span data-i18n="h.s3.status">Crunching the numbers…</span></div>
     </div>
   </div>
 </div>
 
 <!-- ───────────── PLUNGE ───────────── -->
 <div class="plunge" data-phase-section="3" id="plunge">
-  <h2>Meanwhile, behind that spinner…</h2>
-  <p>Every question triggers a full AI reasoning pipeline — 18 chained stages of calculation and interpretation, running one after another in seconds. This is the part that actually matters, and the part you're not meant to have to think about.</p>
+  <h2 data-i18n="h.plunge.h">Meanwhile, behind that spinner…</h2>
+  <p data-i18n="h.plunge.p">Every question triggers a full AI reasoning pipeline — 18 chained stages of calculation and interpretation, running one after another in seconds. This is the part that actually matters, and the part you're not meant to have to think about.</p>
   <div class="waterline"></div>
 </div>
 
@@ -449,13 +478,13 @@ a { color: inherit; }
         <div class="face f6"></div>
       </div>
     </div>
-    <span class="eyebrow">What you don't see</span>
-    <h2>The 18-stage AI engine</h2>
-    <p>Your dataset gets queried, quality-checked, statistically analyzed, correlated, trended, and audited for outliers — with an LLM interpreting the meaning of every result along the way — before anything is written to your report.</p>
+    <span class="eyebrow" data-i18n="h.engine.eyebrow">What you don't see</span>
+    <h2 data-i18n="h.engine.h">The 18-stage AI engine</h2>
+    <p data-i18n="h.engine.p">Your dataset gets queried, quality-checked, statistically analyzed, correlated, trended, and audited for outliers — with an LLM interpreting the meaning of every result along the way — before anything is written to your report.</p>
     <div class="stat-row">
-      <div class="stat"><div class="num">18</div><div class="lbl">chained AI stages</div></div>
-      <div class="stat"><div class="num">1</div><div class="lbl">plain-English question in</div></div>
-      <div class="stat"><div class="num">1</div><div class="lbl">decision-ready report out</div></div>
+      <div class="stat"><div class="num">18</div><div class="lbl" data-i18n="h.stat1">chained AI stages</div></div>
+      <div class="stat"><div class="num">1</div><div class="lbl" data-i18n="h.stat2">plain-English question in</div></div>
+      <div class="stat"><div class="num">1</div><div class="lbl" data-i18n="h.stat3">decision-ready report out</div></div>
     </div>
   </div>
 
@@ -464,123 +493,123 @@ a { color: inherit; }
     <div class="pipeline-fill" id="pipeline-fill"></div>
 
     <div class="node" data-i="1"><div class="node-dot">01</div><div class="node-body">
-      <div class="node-kicker">Intent</div><div class="node-title">Business Question Chain</div>
-      <div class="node-desc">The LLM reads your plain-English question and figures out what you're actually asking for — the real business intent behind the words.</div>
+      <div class="node-kicker" data-i18n="h.n1.k">Intent</div><div class="node-title" data-i18n="h.n1.t">Business Question Chain</div>
+      <div class="node-desc" data-i18n="h.n1.d">The LLM reads your plain-English question and figures out what you're actually asking for — the real business intent behind the words.</div>
     </div></div>
 
     <div class="node" data-i="2"><div class="node-dot">02</div><div class="node-body">
-      <div class="node-kicker">Query</div><div class="node-title">SQL Generation Chain</div>
-      <div class="node-desc">That intent is translated into an actual database query, written against your dataset's real schema.</div>
+      <div class="node-kicker" data-i18n="h.n2.k">Query</div><div class="node-title" data-i18n="h.n2.t">SQL Generation Chain</div>
+      <div class="node-desc" data-i18n="h.n2.d">That intent is translated into an actual database query, written against your dataset's real schema.</div>
       <div class="node-code">SELECT ... FROM sales WHERE quarter = 'Q3' …</div>
     </div></div>
 
     <div class="node" data-i="3"><div class="node-dot">03</div><div class="node-body">
-      <div class="node-kicker">Safety</div><div class="node-title">SQL Validation</div>
-      <div class="node-desc">Before anything touches your data, the generated query is checked for correctness and safety — no destructive statements ever run.</div>
+      <div class="node-kicker" data-i18n="h.n3.k">Safety</div><div class="node-title" data-i18n="h.n3.t">SQL Validation</div>
+      <div class="node-desc" data-i18n="h.n3.d">Before anything touches your data, the generated query is checked for correctness and safety — no destructive statements ever run.</div>
     </div></div>
 
     <div class="node" data-i="4"><div class="node-dot">04</div><div class="node-body">
-      <div class="node-kicker">Execution</div><div class="node-title">Database Execution</div>
-      <div class="node-desc">The validated query actually runs against your uploaded file or connected database, pulling the real rows needed to answer you.</div>
+      <div class="node-kicker" data-i18n="h.n4.k">Execution</div><div class="node-title" data-i18n="h.n4.t">Database Execution</div>
+      <div class="node-desc" data-i18n="h.n4.d">The validated query actually runs against your uploaded file or connected database, pulling the real rows needed to answer you.</div>
     </div></div>
 
     <div class="node" data-i="5"><div class="node-dot">05</div><div class="node-body">
-      <div class="node-kicker">Quality</div><div class="node-title">Data Quality Calculation</div>
-      <div class="node-desc">The returned data is scored for completeness, nulls, duplicates and consistency before any conclusions are drawn from it.</div>
+      <div class="node-kicker" data-i18n="h.n5.k">Quality</div><div class="node-title" data-i18n="h.n5.t">Data Quality Calculation</div>
+      <div class="node-desc" data-i18n="h.n5.d">The returned data is scored for completeness, nulls, duplicates and consistency before any conclusions are drawn from it.</div>
     </div></div>
 
     <div class="node" data-i="6"><div class="node-dot">06</div><div class="node-body">
-      <div class="node-kicker">Quality</div><div class="node-title">Data Quality Interpretation</div>
-      <div class="node-desc">The LLM explains, in plain language, what those quality scores actually mean for how much to trust the answer.</div>
+      <div class="node-kicker" data-i18n="h.n6.k">Quality</div><div class="node-title" data-i18n="h.n6.t">Data Quality Interpretation</div>
+      <div class="node-desc" data-i18n="h.n6.d">The LLM explains, in plain language, what those quality scores actually mean for how much to trust the answer.</div>
     </div></div>
 
     <div class="node" data-i="7"><div class="node-dot">07</div><div class="node-body">
-      <div class="node-kicker">Statistics</div><div class="node-title">Statistical Calculation</div>
-      <div class="node-desc">Core statistics — averages, distributions, variance and more — are computed across the relevant fields.</div>
+      <div class="node-kicker" data-i18n="h.n7.k">Statistics</div><div class="node-title" data-i18n="h.n7.t">Statistical Calculation</div>
+      <div class="node-desc" data-i18n="h.n7.d">Core statistics — averages, distributions, variance and more — are computed across the relevant fields.</div>
     </div></div>
 
     <div class="node" data-i="8"><div class="node-dot">08</div><div class="node-body">
-      <div class="node-kicker">Statistics</div><div class="node-title">Statistical Interpretation</div>
-      <div class="node-desc">The raw numbers are turned into a narrative — what's normal, what's not, and why it matters to the business.</div>
+      <div class="node-kicker" data-i18n="h.n8.k">Statistics</div><div class="node-title" data-i18n="h.n8.t">Statistical Interpretation</div>
+      <div class="node-desc" data-i18n="h.n8.d">The raw numbers are turned into a narrative — what's normal, what's not, and why it matters to the business.</div>
     </div></div>
 
     <div class="node" data-i="9"><div class="node-dot">09</div><div class="node-body">
-      <div class="node-kicker">Relationships</div><div class="node-title">Correlation Calculation</div>
-      <div class="node-desc">The engine looks for relationships between variables — which metrics move together, and how strongly.</div>
+      <div class="node-kicker" data-i18n="h.n9.k">Relationships</div><div class="node-title" data-i18n="h.n9.t">Correlation Calculation</div>
+      <div class="node-desc" data-i18n="h.n9.d">The engine looks for relationships between variables — which metrics move together, and how strongly.</div>
     </div></div>
 
     <div class="node" data-i="10"><div class="node-dot">10</div><div class="node-body">
-      <div class="node-kicker">Relationships</div><div class="node-title">Correlation Interpretation</div>
-      <div class="node-desc">Those relationships are explained in business terms — is this a meaningful driver, or just noise?</div>
+      <div class="node-kicker" data-i18n="h.n10.k">Relationships</div><div class="node-title" data-i18n="h.n10.t">Correlation Interpretation</div>
+      <div class="node-desc" data-i18n="h.n10.d">Those relationships are explained in business terms — is this a meaningful driver, or just noise?</div>
     </div></div>
 
     <div class="node" data-i="11"><div class="node-dot">11</div><div class="node-body">
-      <div class="node-kicker">Trends</div><div class="node-title">Trend Calculation</div>
-      <div class="node-desc">Time-series movement is measured — is the metric you asked about rising, falling, or flat, and how fast.</div>
+      <div class="node-kicker" data-i18n="h.n11.k">Trends</div><div class="node-title" data-i18n="h.n11.t">Trend Calculation</div>
+      <div class="node-desc" data-i18n="h.n11.d">Time-series movement is measured — is the metric you asked about rising, falling, or flat, and how fast.</div>
     </div></div>
 
     <div class="node" data-i="12"><div class="node-dot">12</div><div class="node-body">
-      <div class="node-kicker">Trends</div><div class="node-title">Trend Interpretation</div>
-      <div class="node-desc">The trend is narrated — what changed, over what period, and how that lines up with your original question.</div>
+      <div class="node-kicker" data-i18n="h.n12.k">Trends</div><div class="node-title" data-i18n="h.n12.t">Trend Interpretation</div>
+      <div class="node-desc" data-i18n="h.n12.d">The trend is narrated — what changed, over what period, and how that lines up with your original question.</div>
     </div></div>
 
     <div class="node" data-i="13"><div class="node-dot">13</div><div class="node-body">
-      <div class="node-kicker">Anomalies</div><div class="node-title">Outlier Calculation</div>
-      <div class="node-desc">Statistically unusual points — spikes, drops, one-off events — are detected across the dataset.</div>
+      <div class="node-kicker" data-i18n="h.n13.k">Anomalies</div><div class="node-title" data-i18n="h.n13.t">Outlier Calculation</div>
+      <div class="node-desc" data-i18n="h.n13.d">Statistically unusual points — spikes, drops, one-off events — are detected across the dataset.</div>
     </div></div>
 
     <div class="node" data-i="14"><div class="node-dot">14</div><div class="node-body">
-      <div class="node-kicker">Anomalies</div><div class="node-title">Outlier Interpretation</div>
-      <div class="node-desc">Each anomaly is explained — is it a data error, a one-time event, or a real signal worth flagging?</div>
+      <div class="node-kicker" data-i18n="h.n14.k">Anomalies</div><div class="node-title" data-i18n="h.n14.t">Outlier Interpretation</div>
+      <div class="node-desc" data-i18n="h.n14.d">Each anomaly is explained — is it a data error, a one-time event, or a real signal worth flagging?</div>
     </div></div>
 
     <div class="node" data-i="15"><div class="node-dot">15</div><div class="node-body">
-      <div class="node-kicker">Synthesis</div><div class="node-title">Exploratory Data Analysis Chain</div>
-      <div class="node-desc">Every calculation and interpretation so far — quality, stats, correlation, trend, outliers — is pulled together into one coherent picture of the data.</div>
+      <div class="node-kicker" data-i18n="h.n15.k">Synthesis</div><div class="node-title" data-i18n="h.n15.t">Exploratory Data Analysis Chain</div>
+      <div class="node-desc" data-i18n="h.n15.d">Every calculation and interpretation so far — quality, stats, correlation, trend, outliers — is pulled together into one coherent picture of the data.</div>
     </div></div>
 
     <div class="node" data-i="16"><div class="node-dot">16</div><div class="node-body">
-      <div class="node-kicker">Reasoning</div><div class="node-title">Root Cause Chain</div>
-      <div class="node-desc">The LLM reasons about *why* the pattern happened — not just what happened, but the likely underlying cause.</div>
+      <div class="node-kicker" data-i18n="h.n16.k">Reasoning</div><div class="node-title" data-i18n="h.n16.t">Root Cause Chain</div>
+      <div class="node-desc" data-i18n="h.n16.d">The LLM reasons about *why* the pattern happened — not just what happened, but the likely underlying cause.</div>
     </div></div>
 
     <div class="node" data-i="17"><div class="node-dot">17</div><div class="node-body">
-      <div class="node-kicker">Reasoning</div><div class="node-title">Insight Chain</div>
-      <div class="node-desc">The most important, non-obvious takeaways are distilled out of everything the pipeline has learned so far.</div>
+      <div class="node-kicker" data-i18n="h.n17.k">Reasoning</div><div class="node-title" data-i18n="h.n17.t">Insight Chain</div>
+      <div class="node-desc" data-i18n="h.n17.d">The most important, non-obvious takeaways are distilled out of everything the pipeline has learned so far.</div>
     </div></div>
 
     <div class="node" data-i="18"><div class="node-dot">18</div><div class="node-body">
-      <div class="node-kicker">Action</div><div class="node-title">Recommendation Chain</div>
-      <div class="node-desc">Concrete, actionable next steps are generated — the "so what do I actually do about it" answer to your original question.</div>
+      <div class="node-kicker" data-i18n="h.n18.k">Action</div><div class="node-title" data-i18n="h.n18.t">Recommendation Chain</div>
+      <div class="node-desc" data-i18n="h.n18.d">Concrete, actionable next steps are generated — the "so what do I actually do about it" answer to your original question.</div>
     </div></div>
 
     <div class="node final" data-i="19"><div class="node-dot">✦</div><div class="node-body">
-      <div class="node-kicker">Delivery</div><div class="node-title">Final Report Assembled</div>
-      <div class="node-desc">All 18 stages are compiled into one structured report — summary, data quality, statistics, trends, root causes, insights and recommendations — ready to render on your screen or export as a PDF.</div>
+      <div class="node-kicker" data-i18n="h.n19.k">Delivery</div><div class="node-title" data-i18n="h.n19.t">Final Report Assembled</div>
+      <div class="node-desc" data-i18n="h.n19.d">All 18 stages are compiled into one structured report — summary, data quality, statistics, trends, root causes, insights and recommendations — ready to render on your screen or export as a PDF.</div>
     </div></div>
   </div>
 
   <div class="engine-controls">
-    <button class="ctrl-btn" id="replay-btn">↻ Replay the pipeline</button>
+    <button class="ctrl-btn" id="replay-btn" data-i18n="h.replay">↻ Replay the pipeline</button>
     <span class="ctrl-note" id="stage-note">Scroll to advance through each stage</span>
   </div>
 </div>
 
 <!-- ───────────── RESURFACE ───────────── -->
 <div class="resurface" data-phase-section="4" id="resurface">
-  <h2>Back on the surface: your results appear</h2>
-  <p>All of that lands back in your dashboard as a clean, readable report — no SQL, no spreadsheets, no raw stats dump. Just the answer, and what to do about it.</p>
+  <h2 data-i18n="h.res.h">Back on the surface: your results appear</h2>
+  <p data-i18n="h.res.p">All of that lands back in your dashboard as a clean, readable report — no SQL, no spreadsheets, no raw stats dump. Just the answer, and what to do about it.</p>
 </div>
 
 <div class="section-wrap" data-phase-section="4">
   <div class="fe-step" data-phase="4">
     <div class="fe-copy">
-      <h3>4. Your report renders</h3>
-      <p>Summary, data quality notes, statistics, trends, root causes, insights and recommendations — each in its own clearly labelled section.</p>
+      <h3 data-i18n="h.s4.h">4. Your report renders</h3>
+      <p data-i18n="h.s4.p">Summary, data quality notes, statistics, trends, root causes, insights and recommendations — each in its own clearly labelled section.</p>
     </div>
     <div class="fe-mock">
-      <div class="fake-result"><h4>Summary</h4><div class="bar" style="width:92%"></div><div class="bar" style="width:74%"></div></div>
-      <div class="fake-result"><h4>Recommendations</h4><div class="bar" style="width:60%"></div></div>
+      <div class="fake-result"><h4 data-i18n="h.s4.summary">Summary</h4><div class="bar" style="width:92%"></div><div class="bar" style="width:74%"></div></div>
+      <div class="fake-result"><h4 data-i18n="h.s4.reco">Recommendations</h4><div class="bar" style="width:60%"></div></div>
     </div>
   </div>
 </div>
@@ -588,41 +617,44 @@ a { color: inherit; }
 <div class="section-wrap" data-phase-section="5">
   <div class="fe-step" data-phase="5">
     <div class="fe-copy">
-      <h3>5. Export it or push it further</h3>
-      <p>Download the whole thing as a PDF, or ask a follow-up to improve the report — the pipeline runs again, refining on top of what it already knows.</p>
+      <h3 data-i18n="h.s5.h">5. Export it or push it further</h3>
+      <p data-i18n="h.s5.p">Download the whole thing as a PDF, or ask a follow-up to improve the report — the pipeline runs again, refining on top of what it already knows.</p>
     </div>
     <div class="fe-mock">
-      <span class="fake-btn" style="margin-top:0;">Download PDF ⇩</span>
-      <span class="fake-btn" style="margin-top:0; margin-left:8px; background:rgba(124,92,255,0.14); color:var(--text); border:1px solid rgba(124,92,255,0.4);">Improve this ↻</span>
+      <span class="fake-btn" style="margin-top:0;" data-i18n="h.s5.pdf">Download PDF ⇩</span>
+      <span class="fake-btn" style="margin-top:0; margin-inline-start:8px; background:rgba(124,92,255,0.14); color:var(--text); border:1px solid rgba(124,92,255,0.4);" data-i18n="h.s5.improve">Improve this ↻</span>
     </div>
   </div>
 </div>
 
 <!-- ───────────── FINAL CTA ───────────── -->
 <div class="final-cta">
-  <h2>That's the whole trip — one question, one engine, one answer.</h2>
-  <p>Ready to try it on your own data?</p>
-  <a href="index.html" class="cta-btn">Back to AI Analyst →</a>
+  <h2 data-i18n="h.cta.h">That's the whole trip — one question, one engine, one answer.</h2>
+  <p data-i18n="h.cta.p">Ready to try it on your own data?</p>
+  <a href="index.html" class="cta-btn" data-i18n="h.cta.btn">Back to AI Analyst →</a>
 </div>
 
 <script>
 // ---------- typewriter on hero mock ----------
-(function typewriter(){
-  const el = document.getElementById('tw');
-  const full = el.textContent;
-  el.textContent = '';
+const twEl = document.getElementById('tw');
+let twRun = 0; // bumped on every restart so an old loop stops itself
+function startTypewriter(){
+  const full = I18N.t('h.s1.q');
+  const run = ++twRun;
   let i = 0;
-  function tick(){
+  twEl.textContent = '';
+  (function tick(){
+    if (run !== twRun) return;
     if (i <= full.length){
-      el.textContent = full.slice(0, i);
+      twEl.textContent = full.slice(0, i);
       i++;
       setTimeout(tick, 45);
     } else {
-      setTimeout(() => { i = 0; tick(); }, 2200);
+      setTimeout(() => { if (run !== twRun) return; i = 0; tick(); }, 2200);
     }
-  }
-  tick();
-})();
+  })();
+}
+startTypewriter();
 
 // ---------- fade-in on scroll for front-end steps & plunge/resurface ----------
 const revealTargets = document.querySelectorAll('.fe-step, .plunge, .resurface');
@@ -632,27 +664,24 @@ const revealObserver = new IntersectionObserver((entries) => {
 revealTargets.forEach(t => revealObserver.observe(t));
 
 // ---------- journey tracker (top bar dots) ----------
-const phaseLabels = [
-  'You ask a question',
-  'You pick a dataset',
-  'You hit Analyze',
-  'The AI engine runs',
-  'Your report appears',
-  'Export or iterate'
-];
+let currentPhase = 0;
 const tstops = document.querySelectorAll('.tstop');
 const trackerLabel = document.getElementById('tracker-label');
 const phaseSections = document.querySelectorAll('[data-phase-section]');
 const phaseObserver = new IntersectionObserver((entries) => {
   entries.forEach(e => {
     if (e.isIntersecting){
-      const phase = +e.target.dataset.phaseSection;
-      tstops.forEach(t => t.classList.toggle('active', +t.dataset.phase === phase));
-      trackerLabel.textContent = phaseLabels[phase] || '';
+      currentPhase = +e.target.dataset.phaseSection;
+      tstops.forEach(t => t.classList.toggle('active', +t.dataset.phase === currentPhase));
+      updateTrackerLabel();
     }
   });
 }, { threshold: 0.5, rootMargin: '-40% 0px -40% 0px' });
 phaseSections.forEach(s => phaseObserver.observe(s));
+function updateTrackerLabel(){
+  trackerLabel.textContent = I18N.t('h.phase.' + currentPhase);
+}
+updateTrackerLabel();
 
 // ---------- pipeline: sequential activation driven by scroll ----------
 const nodes = Array.from(document.querySelectorAll('.node'));
@@ -679,13 +708,13 @@ function updatePipeline(){
   });
 
   if (progress <= 0.01) {
-    stageNote.textContent = 'Scroll to advance through each stage';
+    stageNote.textContent = I18N.t('h.note.start');
   } else if (progress >= 0.999) {
-    stageNote.textContent = 'All 18 stages complete — report assembled ✦';
+    stageNote.textContent = I18N.t('h.note.done');
   } else {
     const n = nodes[activeIndex];
     const title = n.querySelector('.node-title')?.textContent || '';
-    stageNote.textContent = `Running stage ${activeIndex + 1} of ${nodes.length} — ${title}`;
+    stageNote.textContent = I18N.t('h.note.running', { i: activeIndex + 1, n: nodes.length, title: title });
   }
 }
 
@@ -702,6 +731,13 @@ updatePipeline();
 // ---------- replay button: smooth-scrolls back to top of engine room ----------
 document.getElementById('replay-btn').addEventListener('click', () => {
   document.getElementById('plunge').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+// ---------- language switch: refresh everything the scripts above write into the DOM ----------
+window.addEventListener('langchange', () => {
+  startTypewriter();
+  updateTrackerLabel();
+  updatePipeline();
 });
 
 /* ══════════════ ADDITIVE 3D EXTRAS (does not touch anything above) ══════════════ */

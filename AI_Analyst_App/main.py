@@ -167,6 +167,8 @@ class AnalyzeRequest(BaseModel):
     # is given that report's question + result as context so the AI can
     # improve on its own prior answer instead of starting from scratch.
     prior_report_id: Optional[str] = None
+    # Language for the written report and PDF: "en" or "ar".
+    language: str = "en"
 
 
 class ConnectDatabaseRequest(BaseModel):
@@ -739,7 +741,7 @@ def analyze(
             )
 
     try:
-        result = run_pipeline(pipeline_question, data_source)
+        result = run_pipeline(pipeline_question, data_source, language=payload.language)
     except Exception as e:
         traceback.print_exc()
         logger.error(f"Pipeline failed for user={user.id}: {e}")

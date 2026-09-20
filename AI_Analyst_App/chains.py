@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+import contextvars
 import json
 import re
 from huggingface_hub import InferenceClient
@@ -19,9 +20,43 @@ load_dotenv()
 
 client = InferenceClient(model=MODEL_NAME, token=HF_TOKEN, provider="auto")
 
-def run_chain(prompt_template, **kwargs):
+# Language the human-readable interpretations should be written in. Set once per
+# request by pipeline.run_pipeline(); a ContextVar keeps concurrent requests apart.
+_output_language = contextvars.ContextVar("output_language", default="en")
+
+def set_output_language(lang):
+    """Returns a token; pass it to reset_output_language() when the request ends."""
+    return _output_language.set(lang if lang in ("en", "ar") else "en")
+
+def reset_output_language(token):
+    _output_language.reset(token)
+
+_ARABIC_DIRECTIVE = (
+    "\n\nOUTPUT LANGUAGE (mandatory): write the whole response in clear Modern Standard "
+    "Arabic (العربية الفصحى) for an Arabic-speaking business reader. Keep numbers, column "
+    "names, table names, metric names, SQL and code exactly as they appear in the data — "
+    "never translate identifiers. Do not change the structure or format requested above."
+)
+
+# Arabic labels for the assembled 'More analysis' write-up
+_MORE_LABELS = {
+    "growth": "النمو",
+    "segmentation": "التقسيم حسب {d}",
+    "ranking": "الترتيب",
+    "pareto": "التركّز (باريتو) حسب {d}",
+    "distribution": "شكل التوزيع",
+    "contribution": "المساهمة حسب {d}",
+    "time_intelligence": "الوتيرة الأخيرة",
+    "missing_periods": "اكتمال البيانات",
+    "anomaly": "الشذوذ",
+    "none": "لم يتوفر أي تحليل إضافي بخلاف مراحل المسار الأساسية.",
+}
+
+def run_chain(prompt_template, localize=True, **kwargs):
 
     prompt = prompt_template.format(**kwargs)
+    if localize and _output_language.get() == "ar":
+        prompt += _ARABIC_DIRECTIVE
 
     response = client.chat_completion(
         messages=[
@@ -55,6 +90,7 @@ def businessquestion_chain(question, schema):
 
     response = run_chain(
         BusinessQuestionChain_prompt,
+        localize=False,  # strict JSON — never localized
         question=question,
         schema=schema
     )
@@ -65,6 +101,7 @@ def sqlgeneration_chain(question, schema, business_context, latest_date, dialect
 
     return run_chain(
         render_dialect_sql_template(dialect),
+        localize=False,  # SQL — never localized
         question=question, 
         schema=schema, 
         business_context=business_context,
@@ -162,52 +199,58 @@ def moreanalysis_chain(more_analysis_data):
     interpreted separately and labeled by name.
     """
     sections = []
+    ar = _output_language.get() == "ar"
+
+    def label(en_label, key, dimension=None):
+        if not ar:
+            return en_label
+        return _MORE_LABELS[key].format(d=dimension) if dimension is not None else _MORE_LABELS[key]
 
     growth_data = more_analysis_data.get("growth")
     if not _skip(growth_data):
-        sections.append(("Growth", growth_chain(growth_data)))
+        sections.append((label("Growth", "growth"), growth_chain(growth_data)))
 
     segmentation_data = more_analysis_data.get("segmentation") or {}
     for dimension, data in segmentation_data.items():
         if not _skip(data):
-            sections.append((f"Segmentation by {dimension}", segmentation_chain(data)))
+            sections.append((label(f"Segmentation by {dimension}", "segmentation", dimension), segmentation_chain(data)))
 
     ranking_data = more_analysis_data.get("ranking")
     if not _skip(ranking_data):
-        sections.append(("Ranking", ranking_chain(ranking_data)))
+        sections.append((label("Ranking", "ranking"), ranking_chain(ranking_data)))
 
     pareto_data = more_analysis_data.get("pareto") or {}
     for dimension, data in pareto_data.items():
         if not _skip(data):
-            sections.append((f"Concentration (Pareto) by {dimension}", pareto_chain(data)))
+            sections.append((label(f"Concentration (Pareto) by {dimension}", "pareto", dimension), pareto_chain(data)))
 
     distribution_data = more_analysis_data.get("distribution")
     if not _skip(distribution_data):
-        sections.append(("Distribution shape", distribution_chain(distribution_data)))
+        sections.append((label("Distribution shape", "distribution"), distribution_chain(distribution_data)))
 
     contribution_data = more_analysis_data.get("contribution") or {}
     for dimension, data in contribution_data.items():
         if not _skip(data):
-            sections.append((f"Contribution by {dimension}", contribution_chain(data)))
+            sections.append((label(f"Contribution by {dimension}", "contribution", dimension), contribution_chain(data)))
 
     time_intelligence_data = more_analysis_data.get("time_intelligence")
     if not _skip(time_intelligence_data):
-        sections.append(("Recent pace", time_intelligence_chain(time_intelligence_data)))
+        sections.append((label("Recent pace", "time_intelligence"), time_intelligence_chain(time_intelligence_data)))
 
     missing_period_data = more_analysis_data.get("missing_periods")
     if not _skip(missing_period_data):
-        sections.append(("Data completeness", missing_period_chain(missing_period_data)))
+        sections.append((label("Data completeness", "missing_periods"), missing_period_chain(missing_period_data)))
 
     anomaly_data = more_analysis_data.get("anomaly")
     if not _skip(anomaly_data):
-        sections.append(("Anomalies", anomaly_chain(anomaly_data)))
+        sections.append((label("Anomalies", "anomaly"), anomaly_chain(anomaly_data)))
 
     # variance_analysis isn't wired into more_analysis_calculation() yet
     # (no budget/target data source in the pipeline) — variance_chain is
     # ready to use the moment that data becomes available.
 
     if not sections:
-        return "No additional analysis was available beyond the core pipeline stages."
+        return _MORE_LABELS["none"] if ar else "No additional analysis was available beyond the core pipeline stages."
 
     return "\n\n".join(f"{label}: {text.strip()}" for label, text in sections)
 

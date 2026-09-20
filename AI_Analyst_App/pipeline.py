@@ -1,4 +1,5 @@
 from chains import (
+    set_output_language, reset_output_language,
     businessquestion_chain, sqlgeneration_chain, dataquality_chain, statistical_chain,
     correlation_chain, trend_chain, outlier_chain, rootcause_chain, eda_chain, insight_chain,
     recommendation_chain, moreanalysis_chain
@@ -9,7 +10,19 @@ from analysis import (
 )
 from security import sanitize_sql, validate_sql
 
-def run_pipeline(question, data_source):
+def run_pipeline(question, data_source, language="en"):
+    """language: "en" or "ar" — the language the written interpretations come back in.
+    SQL and the structured plan stay in English either way."""
+    token = set_output_language(language)
+    try:
+        result = _run_pipeline(question, data_source)
+    finally:
+        reset_output_language(token)
+    result["language"] = language if language in ("en", "ar") else "en"
+    return result
+
+
+def _run_pipeline(question, data_source):
     """data_source is any object with get_schema(), get_latest_date(table, col),
     and execute_sql(query) — see datasources.py. It points at whichever
     dataset (uploaded file or external DB) the user picked for this
