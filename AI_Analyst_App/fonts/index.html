@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IntelligentEra — How We Build Software</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<canvas id="fx"></canvas>
+<div class="bg-shapes" aria-hidden="true">
+  <span class="shape shape-ring"></span>
+  <span class="shape shape-tri"></span>
+  <span class="shape shape-sq"></span>
+  <span class="shape shape-dot"></span>
+  <span class="shape shape-hex"></span>
+  <span class="shape shape-ring2"></span>
+  <span class="shape shape-blob"></span>
+  <span class="shape shape-blob2"></span>
+</div>
+<div class="progressbar" id="progressbar"></div>
+
+<div class="topbar" id="topbar">
+  <div class="brand">IntelligentEra</div>
+  <div class="topbar-right">How We Build</div>
+</div>
+
+<div class="rail" id="rail"></div>
+
+<!-- HERO -->
+<section class="slide hero" data-rail="Intro">
+  <img class="hero-logo" src="https://res.cloudinary.com/dhanjaap5/image/upload/v1789268953/intelligentEra-removebg-preview_a85ytf.png" alt="IntelligentEra logo">
+  <div class="kicker">Architecture-first · Always improving</div>
+  <h1 class="hero-title">
+    <span class="line"><span>From a sketch</span></span>
+    <span class="line"><span class="grad">to a system</span></span>
+    <span class="line"><span>that keeps improving.</span></span>
+  </h1>
+  <p class="hero-sub">Six disciplined steps run behind every project we build at IntelligentEra. Every small step matters as much as the big one — scroll to meet each of them, one at a time.</p>
+  <div class="scrollcue"><div class="mouse"></div>Scroll</div>
+</section>
+
+<!-- ================= STEP 1 ================= -->
+<section class="slide step-title-slide" data-rail="Sketch the idea" data-step="1">
+  <div class="step-bignum">01</div>
+  <div class="step-tag">Step 01 · Imagination first</div>
+  <h2 class="step-title">Sketching the idea</h2>
+  <p class="step-tagline">We think in our minds about how the system should work — imagining it in the perfect way, without worrying about difficulty. We think about making it perfect, even if it's hard to build.</p>
+  <div class="step-count">3 moments in this step</div>
+</section>
+
+<section class="slide sub-slide" data-rail="1.1 Imagine perfect" data-parent="1" data-index="1" data-total="3">
+  <div class="sub-glow"></div>
+  <div class="sub-num">01<span>/03</span></div>
+  <h3 class="sub-title">Imagine the perfect system</h3>
+  <p class="sub-text">We picture how the product should work in its ideal form first — difficulty is never allowed to shrink the vision.</p>
+</section>
+
+<section class="slide sub-slide" data-rail="1.2 Sketch it all" data-parent="1" data-index="2" data-total="3">
+  <div class="sub-glow"></div>
+  <div class="sub-num">02<span>/03</span></div>
+  <h3 class="sub-title">Write and sketch everything</h3>
+  <p class="sub-text">Every thought, step, and idea that came to mind is written down and sketched out — nothing is left only in memory.</p>
+</section>
+
+<section class="slide sub-slide" data-rail="1.3 Arrange it" data-parent="1" data-index="3" data-total="3">
+  <div class="sub-glow"></div>
+  <div class="sub-num">03<span>/03</span></div>
+  <h3 class="sub-title">Arrange it fully</h3>
+  <p class="sub-text">All the written steps and ideas are put in full, logical order — turning imagination into a structured starting point.</p>
+</section>
+
+<!-- ================= STEP 2 ================= -->
+<section class="slide step-title-slide" data-rail="Plan" data-step="2">
+  <div class="step-bignum">02</div>
+  <div class="step-tag">Step 02 · Structure the vision</div>
+  <h2 class="step-title">Plan</h2>
+  <p class="step-tagline">Scope, milestones, and the tradeoffs decided up front. Every step and every thought is planned in detail — needs, build approach, start, middle, and end.</p>
+  <div class="step-count">10 moments in this step</div>
+</section>
+
+<section class="slide sub-slide" data-rail="2.1 Plan each thought" data-parent="2" data-index="1" data-total="10">
+  <div class="sub-glow"></div><div class="sub-num">01<span>/10</span></div>
+  <h3 class="sub-title">Plan each step & thought</h3>
+  <p class="sub-text">Every idea from the sketch phase gets its own plan — nothing moves forward unplanned.</p>
+</section>
+<section class="slide sub-slide" data-rail="2.2 Plan the needs" data-parent="2" data-index="2" data-total="10">
+  <div class="sub-glow"></div><div class="sub-num">02<span>/10</span></div>
+  <h3 class="sub-title">Plan the needs</h3>
+  <p class="sub-text">What each step and each part of the system actually requires to exist.</p>
+</section>
+<section class="slide sub-slide" data-rail="2.3 Plan how to build" data-parent="2" data-index="3" data-total="10">
+  <div class="sub-glow"></div><div class="sub-num">03<span>/10</span></div>
+  <h3 class="sub-title">Plan how to build it</h3>
+  <p class="sub-text">The concrete approach for turning each planned piece into something real.</p>
+</section>
+<section class="slide sub-slide" data-rail="2.4 Plan the start" data-parent="2" data-index="4" data-total="10">
+  <div class="sub-glow"></div><div class="sub-num">04<span>/10</span></div>
+  <h3 class="sub-title">Plan how to start</h3>
+  <p class="sub-text">Deciding exactly where and how the build begins.</p>
+</section>
+<section class="slide sub-slide" data-rail="2.5 Plan the middle" data-parent="2" data-index="5" data-total="10">
+  <div class="sub-glow"></div><div class="sub-num">05<span>/10</span></div>
+  <h3 class="sub-title">Plan what happens in the middle</h3>
+  <p class="sub-text">What happens as the system takes shape, step by step.</p>
+</section>
+<section class="slide sub-slide" data-rail="2.6 Plan the end" data-parent="2" data-index="6" data-total="10">
+  <div class="sub-glow"></div><div class="sub-num">06<span>/10</span></div>
+  <h3 class="sub-title">Plan how to end it</h3>
+  <p class="sub-text">How the build wraps up, and what "done" actually looks like.</p>
+</section>
+<section class="slide sub-slide" data-rail="2.7 Plan the scope" data-parent="2" data-index="7" data-total="10">
+  <div class="sub-glow"></div><div class="sub-num">07<span>/10</span></div>
+  <h3 class="sub-title">Plan the scope</h3>
+  <p class="sub-text">Defining exactly what is — and isn't — part of this build.</p>
+</section>
+<section class="slide sub-slide" data-rail="2.8 Plan milestones" data-parent="2" data-index="8" data-total="10">
+  <div class="sub-glow"></div><div class="sub-num">08<span>/10</span></div>
+  <h3 class="sub-title">Plan the milestones</h3>
+  <p class="sub-text">Clear checkpoints that mark real progress along the way.</p>
+</section>
+<section class="slide sub-slide" data-rail="2.9 Plan tradeoffs" data-parent="2" data-index="9" data-total="10">
+  <div class="sub-glow"></div><div class="sub-num">09<span>/10</span></div>
+  <h3 class="sub-title">Plan the tradeoffs decided up front</h3>
+  <p class="sub-text">Every tradeoff is decided deliberately, in advance — never discovered by accident later.</p>
+</section>
+<section class="slide sub-slide diagram-slide" data-rail="2.10 Diagram it" data-parent="2" data-index="10" data-total="10">
+  <div class="sub-glow"></div><div class="sub-num">10<span>/10</span></div>
+  <h3 class="sub-title">Diagram the steps and the plans</h3>
+  <p class="sub-text">A diagram of every step and plan, so the whole shape of the work is visible at a glance.</p>
+  <svg class="mini-diagram" viewBox="0 0 400 120" width="360">
+    <line x1="20" y1="60" x2="380" y2="60" class="dg-line"/>
+    <circle cx="20" cy="60" r="7" class="dg-node"/>
+    <circle cx="130" cy="60" r="7" class="dg-node"/>
+    <circle cx="240" cy="60" r="7" class="dg-node"/>
+    <circle cx="350" cy="60" r="7" class="dg-node"/>
+  </svg>
+</section>
+
+<!-- ================= STEP 3 ================= -->
+<section class="slide step-title-slide" data-rail="Design the system" data-step="3">
+  <div class="step-bignum">03</div>
+  <div class="step-tag">Step 03 · The architecture</div>
+  <h2 class="step-title">Design the system</h2>
+  <p class="step-tagline">The software architecture — how every part talks to every other part.</p>
+  <div class="step-count">3 moments in this step</div>
+</section>
+
+<section class="slide sub-slide" data-rail="3.1 Map connections" data-parent="3" data-index="1" data-total="3">
+  <div class="sub-glow"></div><div class="sub-num">01<span>/03</span></div>
+  <h3 class="sub-title">Determine what's connected</h3>
+  <p class="sub-text">Determine which steps are connected and which are not, and how to implement them all together as one system.</p>
+</section>
+<section class="slide sub-slide" data-rail="3.2 Determine needs" data-parent="3" data-index="2" data-total="3">
+  <div class="sub-glow"></div><div class="sub-num">02<span>/03</span></div>
+  <h3 class="sub-title">Determine the needs that will be met</h3>
+  <p class="sub-text">Identify exactly which requirements this architecture has to satisfy.</p>
+</section>
+<section class="slide sub-slide" data-rail="3.3 Design architecture" data-parent="3" data-index="3" data-total="3">
+  <div class="sub-glow"></div><div class="sub-num">03<span>/03</span></div>
+  <h3 class="sub-title">Design the system architecture</h3>
+  <p class="sub-text">The root, the files, and how every file connects to the next — mapped out fully.</p>
+</section>
+
+<!-- ================= STEP 4 ================= -->
+<section class="slide step-title-slide" data-rail="Design infrastructure" data-step="4">
+  <div class="step-bignum">04</div>
+  <div class="step-tag">Step 04 · Built for real usage</div>
+  <h2 class="step-title">Design infrastructure</h2>
+  <p class="step-tagline">Servers, storage, and integrations sized for real usage — the foundation that makes the architecture actually run.</p>
+  <div class="step-count">3 moments in this step</div>
+</section>
+
+<section class="slide sub-slide" data-rail="4.1 Servers" data-parent="4" data-index="1" data-total="3">
+  <div class="sub-glow"></div><div class="sub-num">01<span>/03</span></div>
+  <h3 class="sub-title">Servers</h3>
+  <p class="sub-text">Sized and configured for the load the system will really carry.</p>
+</section>
+<section class="slide sub-slide" data-rail="4.2 Storage" data-parent="4" data-index="2" data-total="3">
+  <div class="sub-glow"></div><div class="sub-num">02<span>/03</span></div>
+  <h3 class="sub-title">Storage</h3>
+  <p class="sub-text">Structured to hold the system's data reliably as it grows.</p>
+</section>
+<section class="slide sub-slide" data-rail="4.3 Integrations" data-parent="4" data-index="3" data-total="3">
+  <div class="sub-glow"></div><div class="sub-num">03<span>/03</span></div>
+  <h3 class="sub-title">Integrations</h3>
+  <p class="sub-text">Every external connection the system needs, planned for real-world scale.</p>
+</section>
+
+<!-- ================= STEP 5 ================= -->
+<section class="slide step-title-slide" data-rail="Real-world flow" data-step="5">
+  <div class="step-bignum">05</div>
+  <div class="step-tag">Step 05 · Beyond the screen</div>
+  <h2 class="step-title">Design the real-world flow</h2>
+  <p class="step-tagline">Like a delivery network behind an online marketplace — we design the full real-life workflow, and how it connects with the technical workflow.</p>
+  <div class="step-count">6 moments in this step</div>
+</section>
+
+<section class="slide sub-slide" data-rail="5.1 Design real-life flow" data-parent="5" data-index="1" data-total="6">
+  <div class="sub-glow"></div><div class="sub-num">01<span>/06</span></div>
+  <h3 class="sub-title">Design the real-life workflow</h3>
+  <p class="sub-text">The complete real-world operational steps the system will depend on, mapped in full.</p>
+</section>
+<section class="slide sub-slide" data-rail="5.2 Connect flows" data-parent="5" data-index="2" data-total="6">
+  <div class="sub-glow"></div><div class="sub-num">02<span>/06</span></div>
+  <h3 class="sub-title">Connect it to the technical flow</h3>
+  <p class="sub-text">How the real-life workflow links and communicates with the software running behind it.</p>
+</section>
+<section class="slide sub-slide flow-slide" data-rail="5.3 Order placed" data-parent="5" data-index="3" data-total="6">
+  <div class="sub-glow"></div><div class="sub-num">03<span>/06</span></div>
+  <h3 class="sub-title">Customer places order in app</h3>
+  <p class="sub-text">The real-world chain begins the moment the customer taps confirm.</p>
+</section>
+<section class="slide sub-slide flow-slide" data-rail="5.4 Routed to warehouse" data-parent="5" data-index="4" data-total="6">
+  <div class="sub-glow"></div><div class="sub-num">04<span>/06</span></div>
+  <h3 class="sub-title">Order routed to nearest warehouse</h3>
+  <p class="sub-text">The system decides, in real time, where that order should physically come from.</p>
+</section>
+<section class="slide sub-slide flow-slide" data-rail="5.5 Rider assigned" data-parent="5" data-index="5" data-total="6">
+  <div class="sub-glow"></div><div class="sub-num">05<span>/06</span></div>
+  <h3 class="sub-title">Rider assigned by live location</h3>
+  <p class="sub-text">The nearest available rider is matched to the order automatically.</p>
+</section>
+<section class="slide sub-slide flow-slide" data-rail="5.6 Delivered" data-parent="5" data-index="6" data-total="6">
+  <div class="sub-glow"></div><div class="sub-num">06<span>/06</span></div>
+  <h3 class="sub-title">Delivery tracked to the customer's door</h3>
+  <p class="sub-text">The loop closes — software and real life, moving as one system.</p>
+</section>
+
+<!-- ================= STEP 6 ================= -->
+<section class="slide step-title-slide" data-rail="Keep improving" data-step="6">
+  <div class="step-bignum">06</div>
+  <div class="step-tag">Step 06 · Never really "done"</div>
+  <h2 class="step-title">Keep improving</h2>
+  <p class="step-tagline">Every system we ship keeps getting refined after launch — and the plan for that starts before we ever launch.</p>
+  <div class="step-count">2 moments in this step</div>
+</section>
+
+<section class="slide sub-slide" data-rail="6.1 Plan ahead" data-parent="6" data-index="1" data-total="2">
+  <div class="sub-glow"></div><div class="sub-num">01<span>/02</span></div>
+  <h3 class="sub-title">Plan for the future, before launch</h3>
+  <p class="sub-text">We design and write the architecture for future improvements before the system ever ships.</p>
+</section>
+<section class="slide sub-slide" data-rail="6.2 Refine after launch" data-parent="6" data-index="2" data-total="2">
+  <div class="sub-glow"></div><div class="sub-num">02<span>/02</span></div>
+  <h3 class="sub-title">Refine after launch</h3>
+  <p class="sub-text">Every system keeps getting improved once it's live — refinement never really stops.</p>
+</section>
+
+<!-- OUTRO -->
+<section class="slide outro" data-rail="Outro">
+  <img class="outro-logo" src="https://res.cloudinary.com/dhanjaap5/image/upload/v1789268953/intelligentEra-removebg-preview_a85ytf.png" alt="IntelligentEra logo">
+  <div class="kicker vis">IntelligentEra</div>
+  <h2 class="outro-title">Six steps. One discipline. Every system we build.</h2>
+  <p class="outro-sub">From the first sketch to the architecture that keeps improving — this is how IntelligentEra turns an idea into software that lasts.</p>
+  <button class="cta-btn">Start a project</button>
+  <div class="wordmark-out">Software · AI Agents · Systems — Built in Egypt</div>
+</section>
+
+<script src="script.js"></script>
+</body>
+</html>
